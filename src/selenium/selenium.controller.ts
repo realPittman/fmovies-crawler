@@ -1,13 +1,14 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { SimpleSearchDto } from './dto/simple-search.dto';
+import { VideoDto } from './dto/video.dto';
 import { SeleniumService } from './selenium.service';
 
 @Controller()
 export class SeleniumController {
   constructor(private readonly seleniumService: SeleniumService) {}
   @Get('simple-search')
-  // TODO: validate input
-  simpleSearch(@Query('keyword') keyword: string) {
-    return this.seleniumService.simpleSearch(keyword);
+  simpleSearch(@Query() input: SimpleSearchDto) {
+    return this.seleniumService.simpleSearch(input.keyword);
   }
 
   @Get('search')
@@ -17,7 +18,7 @@ export class SeleniumController {
   }
 
   @Get('video')
-  getVideoDetails(@Query('path') path: string) {
-    return this.seleniumService.getVideoDetails(path);
+  getVideoDetails(@Query() input: VideoDto) {
+    return this.seleniumService.getVideoDetails(input.path);
   }
 }

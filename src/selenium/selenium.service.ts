@@ -131,7 +131,7 @@ export class SeleniumService {
         name: $("#watch .watch-extra .info .title").text().trim(),
         background: $("#watch .play").css("background-image").replace('url(\"', '').replace('\")',''),
         poster: $("#watch .watch-extra .info .poster img").attr("src").replace('-w380', ''),
-        description: $("#watch .watch-extra .info .desc").text().trim(),
+        description: $("#watch .watch-extra .info .desc").text().trim().replace('  less', ''),
         imdb: parseFloat($("#watch .watch-extra .info .imdb").text().trim()),
         quality: $("#watch .watch-extra .info .quality").text().trim(),
         // TODO: return related videos
