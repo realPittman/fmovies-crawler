@@ -6,6 +6,7 @@ import { SeleniumService } from './selenium.service';
 @Controller()
 export class SeleniumController {
   constructor(private readonly seleniumService: SeleniumService) {}
+
   @Get('simple-search')
   simpleSearch(@Query() input: SimpleSearchDto) {
     return this.seleniumService.simpleSearch(input.keyword);
