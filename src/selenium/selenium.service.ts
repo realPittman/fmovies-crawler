@@ -9,6 +9,7 @@ import {
   ThenableWebDriver,
   until,
 } from 'selenium-webdriver';
+import { Options } from 'selenium-webdriver/chrome';
 import { MCloudResponse } from './types/response.types';
 
 const caps = new Capabilities();
@@ -29,7 +30,15 @@ export class SeleniumService {
   private readonly baseUri = 'https://fmovies.to/';
 
   private createBrowser() {
-    return new Builder().withCapabilities(caps).forBrowser('chrome').build();
+    const options = new Options();
+    // options.addArguments('--disable-dev-shm-usage');
+    // options.headless();
+
+    return new Builder()
+      .withCapabilities(caps)
+      .forBrowser('chrome')
+      .setChromeOptions(options)
+      .build();
   }
 
   private async getMCloudEmbedDetails(videoCode: string) {
@@ -153,7 +162,7 @@ export class SeleniumService {
       ),
     };
 
-    browser.close();
+    await browser.quit();
 
     return response;
   }

@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  selenium:
+    image: selenium/standalone-chrome:91.0
+    container_name: selenium
+
+  app:
+    build: .
+    container_name: fmovies-crawler
+    depends_on:
+      - selenium
+    environment:
+      SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
+    ports:
+      - '3000:3000'
