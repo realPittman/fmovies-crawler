@@ -158,15 +158,54 @@ export class SeleniumService {
     const type = await this.findVideoType(browser);
 
     let seasons;
-
     if (type == VideoType.SERIES) {
       seasons = await this.fetchSeasonDetails(browser);
     }
+
+    /**
+     * Fetching details
+     */
+    const infoSection = await browser.findElement(
+      By.css('#watch .watch-extra .info'),
+    );
+
+    const poster = await infoSection
+      .findElement(By.css('.poster img'))
+      .getAttribute('src');
+
+    const background = await browser.executeScript(
+      `return $("#watch .play").css("background-image").replace('url(\"', '').replace('\")','')`,
+    );
+
+    const name = await infoSection.findElement(By.css('.title')).getText();
+    const quality = await infoSection.findElement(By.css('.quality')).getText();
+    const imdb = _.toNumber(
+      _.trim(await infoSection.findElement(By.css('.imdb')).getText()),
+    );
+
+    // Click on "+ more" button to get full details
+    try {
+      await browser.executeScript('$(".more").click();');
+    } catch (e) {
+      // Do nothing, if the button does not exist!
+    }
+
+    const description = await infoSection
+      .findElement(By.css('.desc'))
+      .getText();
+
+    // TODO: get video meta
 
     browser.close();
 
     return {
       type,
+      name,
+      quality,
+      imdb,
+      poster,
+      background,
+      description,
       seasons,
       cdn: await this.getMCloudEmbedDetails(
         _.last(new URL(iframeSrc).pathname.split('/')),
