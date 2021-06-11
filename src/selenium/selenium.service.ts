@@ -59,22 +59,20 @@ export class SeleniumService {
   }
 
   private async findVideoType(browser: ThenableWebDriver): Promise<VideoType> {
-    try {
-      const breadcrumb = await browser.findElement(By.css('.breadcrumb'));
-      const items = await breadcrumb.findElements(By.css('.breadcrumb-item'));
-      for (let i = 0; i < items.length; i++) {
-        switch (await items[i].findElement(By.css('span')).getText()) {
-          case 'TV-Series':
-            return VideoType.SERIES;
-          case 'Movies':
-            return VideoType.MOVIE;
-        }
-      }
-    } catch (e) {
-      console.log(e);
-      throw new Error('Could not find video type');
-    }
-    throw new Error('Unsupported video type');
+    return browser.executeScript(`
+      var videoType = undefined;
+      $(".breadcrumb").find(".breadcrumb-item").each((key, value) => {
+          switch ($(value).find('span').text()){
+              case "TV-Series":
+                  videoType = "series";
+              break;
+              case "Movies":
+                  videoType = "movie";
+              break;
+          }
+      })
+      return videoType;
+    `);
   }
 
   // TODO: add response type
