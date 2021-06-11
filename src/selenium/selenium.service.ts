@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import axios, { AxiosResponse } from 'axios';
 import 'chromedriver';
 import * as _ from 'lodash';
@@ -27,7 +28,11 @@ enum ServerID {
 
 @Injectable()
 export class SeleniumService {
-  private readonly baseUri = 'https://fmovies.to/';
+  private readonly baseUri: string;
+
+  constructor(private readonly configService: ConfigService) {
+    this.baseUri = this.configService.get('fmovies.baseUri');
+  }
 
   private createBrowser() {
     const options = new Options();
@@ -147,6 +152,9 @@ export class SeleniumService {
       }`,
     );
 
+    const seasons =
+      type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : [];
+
     await browser.wait(until.elementLocated(By.css(selectors.iframe)));
     const iframeSrc = await browser.executeScript<string>(
       `return $("${selectors.iframe}").attr("src")`,
@@ -155,8 +163,7 @@ export class SeleniumService {
     const response = {
       type,
       info,
-      seasons:
-        type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : [],
+      seasons,
       cdn: await this.getMCloudEmbedDetails(
         _.last(new URL(iframeSrc).pathname.split('/')),
       ),
