@@ -43,7 +43,20 @@ export class SeleniumService {
         },
       },
     );
-    return response.data.media.sources;
+
+    const cdn = {
+      download: '',
+      stream: '',
+    };
+
+    for (let i = 0; i < response.data.media.sources.length; i++) {
+      if (response.data.media.sources[i].label) {
+        cdn.download = response.data.media.sources[i].file;
+      } else {
+        cdn.stream = response.data.media.sources[i].file;
+      }
+    }
+    return cdn;
   }
 
   private async findVideoType(browser: ThenableWebDriver): Promise<VideoType> {
@@ -65,32 +78,64 @@ export class SeleniumService {
     throw new Error('Unsupported video type');
   }
 
-  // https://stackoverflow.com/questions/39741076
-  private async getTextNode(e: WebElement) {
-    let text = _.trim(await e.getText());
-    const children = await e.findElements(By.xpath('./*'));
-    for (let i = 0; i < children.length; i++) {
-      text = _.trim(text.replace(await children[i].getText(), ''));
-    }
-    return text;
-  }
-
   // TODO: add response type
   private async fetchSeasonDetails(browser: ThenableWebDriver) {
-    const episodes = await browser.findElement(By.css('#watch #episodes'));
-
     const seasonsItems = await browser.findElements(
       By.css('#watch #episodes .bl-seasons ul li'),
     );
 
-    const seasons = [];
+    const seasons = {};
     for (let i = 0; i < seasonsItems.length; i++) {
-      seasons.push({
-        id: _.toNumber(await seasonsItems[i].getAttribute('data-id')),
-        name: await this.getTextNode(seasonsItems[i]),
-      });
+      const seasonId = _.toNumber(
+        await seasonsItems[i].getAttribute('data-id'),
+      );
+      seasons[seasonId] = {
+        number: seasonId,
+        episodes: [],
+      };
     }
-    return seasons;
+
+    /**
+     * Adding episodes to the seasons
+     */
+    await browser.executeScript('$(".episodes").css("display", "block");');
+    const episodes = await browser.findElements(
+      By.css('#watch #episodes .bl-servers .episodes'),
+    );
+
+    for (let i = 0; i < episodes.length; i++) {
+      // We only want to load episodes from MyCloud server, so we skip others
+      if (
+        _.toNumber(await episodes[i].getAttribute('data-server')) !==
+        ServerID.MyCloud
+      ) {
+        continue;
+      }
+      const seasonId = _.toNumber(
+        await episodes[i].getAttribute('data-season'),
+      );
+      const episodeItems = await episodes[i].findElements(By.css('li a'));
+      for (let j = 0; j < episodeItems.length; j++) {
+        console.log(
+          `Adding episode ${j} to season ${seasonId} - ${Date.now()}`,
+        );
+        seasons[seasonId].episodes.push({
+          number: _.toNumber(
+            (await episodeItems[j].getAttribute('data-kname')).replace(
+              seasonId + ':',
+              '',
+            ),
+          ),
+          path: (await episodeItems[j].getAttribute('href')).replace(
+            this.baseUri,
+            '',
+          ),
+          title: await episodeItems[j].findElement(By.css('span')).getText(),
+        });
+      }
+    }
+
+    return _.toArray(seasons);
   }
 
   async getVideoDetails(path: string) {
@@ -123,7 +168,7 @@ export class SeleniumService {
     return {
       type,
       seasons,
-      MCloud: await this.getMCloudEmbedDetails(
+      cdn: await this.getMCloudEmbedDetails(
         _.last(new URL(iframeSrc).pathname.split('/')),
       ),
     };
