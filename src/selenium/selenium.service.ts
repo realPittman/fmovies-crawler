@@ -134,6 +134,7 @@ export class SeleniumService {
         description: $("#watch .watch-extra .info .desc").text().trim(),
         imdb: parseFloat($("#watch .watch-extra .info .imdb").text().trim()),
         quality: $("#watch .watch-extra .info .quality").text().trim(),
+        // TODO: return related videos
       }`,
     );
 
@@ -155,5 +156,26 @@ export class SeleniumService {
     browser.close();
 
     return response;
+  }
+
+  // TODO: add parameters
+  async search() {
+    // TODO: write logic
+  }
+
+  async simpleSearch(keyword: string) {
+    const response: AxiosResponse<{ html: string }> = await axios.get(
+      'ajax/film/search',
+      {
+        baseURL: this.baseUri,
+        params: {
+          keyword,
+        },
+      },
+    );
+
+    // TODO: extract information from html response by using Regex or DOM
+
+    return response.data.html;
   }
 }
