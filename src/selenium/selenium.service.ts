@@ -8,7 +8,6 @@ import {
   Capabilities,
   ThenableWebDriver,
   until,
-  WebElement,
 } from 'selenium-webdriver';
 import { MCloudResponse } from './types/response.types';
 
@@ -124,19 +123,9 @@ export class SeleniumService {
 
     browser.navigate().to(this.baseUri + path);
 
-    await browser.wait(until.elementLocated(By.css(selectors.iframe)));
-    const iframeSrc = await browser
-      .findElement(By.css(selectors.iframe))
-      .getAttribute('src');
-
     await browser.wait(until.elementLocated(By.css(selectors.servers)));
 
     const type = await this.findVideoType(browser);
-
-    let seasons;
-    if (type == VideoType.SERIES) {
-      seasons = await this.fetchSeasonDetails(browser);
-    }
 
     const info = await browser.executeScript(
       `$(".more").click();
@@ -144,21 +133,29 @@ export class SeleniumService {
         name: $("#watch .watch-extra .info .title").text().trim(),
         background: $("#watch .play").css("background-image").replace('url(\"', '').replace('\")',''),
         poster: $("#watch .watch-extra .info .poster img").attr("src").replace('-w380', ''),
-        description: $("#watch .watch-extra .info .desc").text(),
+        description: $("#watch .watch-extra .info .desc").text().trim(),
         imdb: parseFloat($("#watch .watch-extra .info .imdb").text().trim()),
         quality: $("#watch .watch-extra .info .quality").text().trim(),
       }`,
     );
 
-    browser.close();
+    await browser.wait(until.elementLocated(By.css(selectors.iframe)));
+    const iframeSrc = await browser.executeScript<string>(
+      `return $("${selectors.iframe}").attr("src")`,
+    );
 
-    return {
+    const response = {
       type,
       info,
-      seasons,
+      seasons:
+        type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : [],
       cdn: await this.getMCloudEmbedDetails(
         _.last(new URL(iframeSrc).pathname.split('/')),
       ),
     };
+
+    browser.close();
+
+    return response;
   }
 }
