@@ -80,62 +80,38 @@ export class SeleniumService {
 
   // TODO: add response type
   private async fetchSeasonDetails(browser: ThenableWebDriver) {
-    const seasonsItems = await browser.findElements(
-      By.css('#watch #episodes .bl-seasons ul li'),
-    );
+    return browser.executeScript(`
+      var seasons = {};
+      $('#watch #episodes .bl-seasons ul li').each(
+        (key, item) => {
+          seasons[$(item).attr('data-id')] = {
+            number: parseInt($(item).attr('data-id')),
+            episodes: []
+          }
+        }
+      )
 
-    const seasons = {};
-    for (let i = 0; i < seasonsItems.length; i++) {
-      const seasonId = _.toNumber(
-        await seasonsItems[i].getAttribute('data-id'),
-      );
-      seasons[seasonId] = {
-        number: seasonId,
-        episodes: [],
-      };
-    }
+      $(".episodes").css("display", "block");
 
-    /**
-     * Adding episodes to the seasons
-     */
-    await browser.executeScript('$(".episodes").css("display", "block");');
-    const episodes = await browser.findElements(
-      By.css('#watch #episodes .bl-servers .episodes'),
-    );
+      $("#watch #episodes .bl-servers .episodes").each(
+        (key, value) => {
+          if (parseInt($(value).attr("data-server")) === ${ServerID.MyCloud}) {
+            var seasonId = $(value).attr("data-season")
+            $(value).find('li a').each(
+              (episodeKey, episodeValue) => {
+                seasons[seasonId].episodes.push({
+                  number: parseInt($(episodeValue).attr('data-kname').replace(seasonId + ':', '')),
+                  path: $(episodeValue).attr('href').replace("${this.baseUri}", ''),
+                  title: $(episodeValue).find('span').text().trim(),
+                })
+              }
+            )
+          }
+        }
+      )
 
-    for (let i = 0; i < episodes.length; i++) {
-      // We only want to load episodes from MyCloud server, so we skip others
-      if (
-        _.toNumber(await episodes[i].getAttribute('data-server')) !==
-        ServerID.MyCloud
-      ) {
-        continue;
-      }
-      const seasonId = _.toNumber(
-        await episodes[i].getAttribute('data-season'),
-      );
-      const episodeItems = await episodes[i].findElements(By.css('li a'));
-      for (let j = 0; j < episodeItems.length; j++) {
-        console.log(
-          `Adding episode ${j} to season ${seasonId} - ${Date.now()}`,
-        );
-        seasons[seasonId].episodes.push({
-          number: _.toNumber(
-            (await episodeItems[j].getAttribute('data-kname')).replace(
-              seasonId + ':',
-              '',
-            ),
-          ),
-          path: (await episodeItems[j].getAttribute('href')).replace(
-            this.baseUri,
-            '',
-          ),
-          title: await episodeItems[j].findElement(By.css('span')).getText(),
-        });
-      }
-    }
-
-    return _.toArray(seasons);
+      return Object.values(seasons);
+    `);
   }
 
   async getVideoDetails(path: string) {
