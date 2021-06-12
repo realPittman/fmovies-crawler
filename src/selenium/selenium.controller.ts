@@ -1,9 +1,16 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import {
+  CacheInterceptor,
+  Controller,
+  Get,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { SimpleSearchDto } from './dto/simple-search.dto';
 import { VideoDto } from './dto/video.dto';
 import { SeleniumService } from './selenium.service';
 
 @Controller()
+@UseInterceptors(CacheInterceptor)
 export class SeleniumController {
   constructor(private readonly seleniumService: SeleniumService) {}
 
