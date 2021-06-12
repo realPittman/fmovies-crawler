@@ -1,4 +1,9 @@
-import { HttpService, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpService,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import { By, ThenableWebDriver, until } from 'selenium-webdriver';
@@ -31,7 +36,6 @@ export class VideoService {
   }
 
   private async getMCloudEmbedDetails(videoCode: string) {
-    this.logger.debug('Fetching MGCloud embed details');
     const response = await this.httpService
       .get<MCloudResponse>(`https://mcloud.to/info/${videoCode}`, {
         headers: {
@@ -59,7 +63,6 @@ export class VideoService {
   }
 
   private async findVideoType(browser: ThenableWebDriver): Promise<VideoType> {
-    this.logger.debug('Finding the video type');
     return browser.executeScript(`
       var videoType = undefined;
       $(".breadcrumb").find(".breadcrumb-item").each((key, value) => {
@@ -78,7 +81,6 @@ export class VideoService {
 
   // TODO: add response type
   private async fetchSeasonDetails(browser: ThenableWebDriver) {
-    this.logger.debug('Fetching season details');
     return browser.executeScript(`
       var seasons = {};
       var current = {};
@@ -147,20 +149,41 @@ export class VideoService {
   }
 
   async getVideoDetails(path: string) {
-    this.logger.debug('Getting video details');
+    this.logger.debug('Getting video details', path);
     const browser = this.seleniumService.createBrowser();
 
-    this.logger.debug(`Navigating to path ${path}`);
-    await browser.navigate().to(this.baseUri + path);
+    try {
+      this.logger.debug(`Navigating to URL`, path);
+      await browser.navigate().to(this.baseUri + path);
+    } catch (err) {
+      await browser.close();
+      throw new InternalServerErrorException('Could not navigate to website.');
+    }
 
-    await this.executeOptimizationScripts(browser);
+    try {
+      await this.executeOptimizationScripts(browser);
+    } catch (err) {
+      await browser.close();
+      throw new InternalServerErrorException(
+        'Could not run the optimization script.',
+      );
+    }
 
-    this.logger.debug('Waiting for servers to load');
-    await browser.wait(
-      until.elementLocated(By.css('#watch #episodes .bl-servers')),
-    );
-    this.logger.debug('Servers loaded');
+    try {
+      this.logger.debug('Waiting for servers to load', path);
+      await browser.wait(
+        until.elementLocated(By.css('#watch #episodes .bl-servers')),
+        20000,
+      );
+      this.logger.debug('Servers loaded', path);
+    } catch (err) {
+      await browser.close();
+      throw new InternalServerErrorException(
+        'Timeout while trying to fetch video servers.',
+      );
+    }
 
+    this.logger.debug('Finding the video type', path);
     const type = await this.findVideoType(browser);
 
     const info = await browser.executeScript(`
@@ -180,19 +203,28 @@ export class VideoService {
         // TODO: return related videos
       }`);
 
+    this.logger.debug('Fetching season details', path);
     const seasons =
       type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : {};
 
     const iframeSelector = '#body #watch #player iframe';
 
-    this.logger.debug('Waiting for iframe video to load');
-    await browser.wait(until.elementLocated(By.css(iframeSelector)));
-    this.logger.debug('Iframe loaded');
+    try {
+      this.logger.debug('Waiting for iframe video to load', path);
+      await browser.wait(until.elementLocated(By.css(iframeSelector)), 20000);
+      this.logger.debug('Iframe loaded', path);
+    } catch (err) {
+      await browser.close();
+      throw new InternalServerErrorException(
+        'Timeout while trying to fetch iframe video.',
+      );
+    }
 
     const iframeSrc = await browser.executeScript<string>(
       `return $("${iframeSelector}").attr("src")`,
     );
 
+    this.logger.debug('Fetching MGCloud embed details', path);
     const response = {
       type,
       info,
