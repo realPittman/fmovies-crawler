@@ -154,7 +154,7 @@ export class SeleniumService {
                 // So we'll mark this episode as "active" episode in another variable
                 if ($(episodeValue).hasClass('active')) {
                   current = {
-                    seasonNumber: parseInt(seasonId),
+                    number: parseInt(seasonId), // Current season number
                     episode: temp
                   }
                 }
