@@ -1,8 +1,10 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SearchService {
+  private readonly logger = new Logger(SearchService.name);
+
   private readonly baseUri: string;
 
   constructor(
@@ -13,6 +15,8 @@ export class SearchService {
   }
 
   async simpleSearch(keyword: string) {
+    this.logger.debug(`Got the keyword to simple search "${keyword}"`);
+
     const response = await this.httpService
       .get<{ html: any }>('ajax/film/search', {
         baseURL: this.baseUri,
