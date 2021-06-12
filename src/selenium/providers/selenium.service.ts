@@ -1,4 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import 'chromedriver';
 import { Builder, Capabilities, ThenableWebDriver } from 'selenium-webdriver';
@@ -40,10 +44,17 @@ export class SeleniumService {
       'profile.managed_default_content_settings.images': 2,
     });
 
-    return new Builder()
-      .withCapabilities(caps)
-      .forBrowser('chrome')
-      .setChromeOptions(options)
-      .build();
+    try {
+      return new Builder()
+        .withCapabilities(caps)
+        .forBrowser('chrome')
+        .setChromeOptions(options)
+        .build();
+    } catch (err) {
+      this.logger.error('Could not create browser instance.', err);
+      throw new InternalServerErrorException(
+        'Could not create browser instance.',
+      );
+    }
   }
 }
