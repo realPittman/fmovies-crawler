@@ -41,7 +41,7 @@ export class SeleniumService {
     this.logger.debug('Creating browser');
     const options = new Options();
 
-    // options.headless();
+    options.headless();
 
     // Disable notification prompts
     options.addArguments(
@@ -177,7 +177,7 @@ export class SeleniumService {
     };
 
     this.logger.debug(`Navigating to path ${path}`);
-    browser.navigate().to(this.baseUri + path);
+    await browser.navigate().to(this.baseUri + path);
 
     await this.executeOptimizationScripts(browser);
 
@@ -188,9 +188,14 @@ export class SeleniumService {
     const type = await this.findVideoType(browser);
 
     const info = await browser.executeScript(`
+      var background = $("#watch .play").css("background-image").replace('url(\"', '').replace('\")','');
+
+      // Sometimes background is the same as baseUri which means video doesn't have custom background!
+      if (background === "${this.baseUri}") background = undefined;
+
       return {
         name: $("#watch .watch-extra .info .title").text().trim(),
-        background: $("#watch .play").css("background-image").replace('url(\"', '').replace('\")',''),
+        background,
         poster: $("#watch .watch-extra .info .poster img").attr("src").replace('-w380', ''),
         description: $("#watch .watch-extra .info .desc").text().trim().replace('  less', ''),
         imdb: parseFloat($("#watch .watch-extra .info .imdb").text().trim()),
