@@ -5,21 +5,25 @@ services:
     image: selenium/hub:latest
     expose:
       - 4444
+    ports:
+      - '4444:4444'
+    environment:
+      GRID_MAX_SESSION: 16
+      GRID_BROWSER_TIMEOUT: 3000
+      GRID_TIMEOUT: 3000
     networks:
       - selenium-grid
-    environment:
-      - SE_NODE_MAX_SESSIONS=8
-      - SE_NODE_SESSION_TIMEOUT=30
 
   chrome:
     image: selenium/node-chrome-debug:3.141.59
     environment:
-      - HUB_PORT_4444_TCP_ADDR=hub
-      - HUB_PORT_4444_TCP_PORT=4444
-      - START_XVFB=false
+      HUB_PORT_4444_TCP_ADDR: hub
+      HUB_PORT_4444_TCP_PORT: 4444
+      NODE_MAX_SESSION: 8
+      NODE_MAX_INSTANCES: 8
     shm_size: 2g
     ports:
-      - 5900:5900
+      - '7900:5900'
     depends_on:
       - hub
     networks:
