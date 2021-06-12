@@ -12,9 +12,12 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   const configService = app.get(ConfigService);
-  const port = configService.get('port');
 
-  await app.listen(port, '0.0.0.0');
-  logger.log(`Application is listening on port ${port}`);
+  await app.listen(
+    configService.get('port'),
+    configService.get('isDocker') ? '0.0.0.0' : undefined,
+  );
+
+  logger.log(`Application is listening`);
 }
 bootstrap();

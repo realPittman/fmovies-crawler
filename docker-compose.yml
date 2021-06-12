@@ -12,5 +12,6 @@ services:
       - selenium
     environment:
       SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
+      IS_RUNNING_IN_DOCKER: 'yes'
     ports:
       - '3000:3000'
