@@ -23,6 +23,7 @@ services:
       NODE_MAX_INSTANCES: 8
     shm_size: 2g
     ports:
+      # VNC viewer port
       - '7900:5900'
     depends_on:
       - hub
@@ -31,17 +32,19 @@ services:
 
   app:
     build: .
-    container_name: fmovies-crawler
     depends_on:
       - hub
       - chrome
-    environment:
-      SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
-      IS_RUNNING_IN_DOCKER: 'yes'
     ports:
       - '${PORT:-3000}:${PORT:-3000}'
     networks:
       - selenium-grid
+    environment:
+      SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
+      # Tells Fastify to listen on "0.0.0.0"
+      IS_RUNNING_IN_DOCKER: 'yes'
+    env_file:
+      - .env
 
 networks:
   selenium-grid:
