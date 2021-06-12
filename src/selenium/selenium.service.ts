@@ -41,21 +41,26 @@ export class SeleniumService {
     this.logger.debug('Creating browser');
     const options = new Options();
 
+    // options.headless();
+
     // Disable notification prompts
-    options.addArguments('--disable-notifications');
+    options.addArguments(
+      '--disable-notifications',
+      '--enable-heavy-ad-intervention',
+      '--enable-parallel-downloading',
+      '--enable-lite-video',
+      '--enable-quic',
+      '--block-new-web-contents', // All pop-ups and calls to window.open will fail
+      // '--disable-dev-shm-usage',
+    );
 
     /**
      * Disable all images (performance boost)
      */
     options.setUserPreferences({
       'profile.default_content_settings.images': 2,
-    });
-    options.setUserPreferences({
       'profile.managed_default_content_settings.images': 2,
     });
-
-    // options.addArguments('--disable-dev-shm-usage');
-    // options.headless();
 
     return new Builder()
       .withCapabilities(caps)
@@ -148,9 +153,23 @@ export class SeleniumService {
     `);
   }
 
+  // Optimize webpage
+  private async executeOptimizationScripts(browser: ThenableWebDriver) {
+    this.logger.debug('Executing optimization script');
+    return browser.executeScript(`
+      $("header.static").remove(); // Remove header (navbar)
+      $("[__idm_frm__]").remove(); // Remove top-right-corner ads
+      $('footer').remove(); // Remove footer
+      $("#comment").remove(); // Remove comment section
+      $(".more").click(); // Click on " + more " button to expand details
+      $(".container #controls").remove(); // Remove video control panel
+    `);
+  }
+
   async getVideoDetails(path: string) {
     this.logger.debug('Getting video details');
     const browser = this.createBrowser();
+
     const selectors = {
       iframe: '#body #watch #player iframe',
       servers: '#watch #episodes .bl-servers',
@@ -160,15 +179,7 @@ export class SeleniumService {
     this.logger.debug(`Navigating to path ${path}`);
     browser.navigate().to(this.baseUri + path);
 
-    this.logger.debug('Executing optimization script');
-    // Optimize webpage
-    await browser.executeScript(`
-      $("[__idm_frm__]").remove(); // Remove ads
-      $('footer').remove(); // Remove footer
-      $("#comment").remove(); // Remove comment section
-      $(".more").click(); // Click on " + more " button to expand details
-    `);
-    this.logger.debug('Optimization script executed');
+    await this.executeOptimizationScripts(browser);
 
     this.logger.debug('Waiting for servers to load');
     await browser.wait(until.elementLocated(By.css(selectors.servers)));
@@ -184,6 +195,7 @@ export class SeleniumService {
         description: $("#watch .watch-extra .info .desc").text().trim().replace('  less', ''),
         imdb: parseFloat($("#watch .watch-extra .info .imdb").text().trim()),
         quality: $("#watch .watch-extra .info .quality").text().trim(),
+        // TODO: fetch video meta
         // TODO: return related videos
       }`);
 
