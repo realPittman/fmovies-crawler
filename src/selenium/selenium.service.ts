@@ -40,7 +40,20 @@ export class SeleniumService {
   private createBrowser() {
     this.logger.debug('Creating browser');
     const options = new Options();
+
+    // Disable notification prompts
     options.addArguments('--disable-notifications');
+
+    /**
+     * Disable all images (performance boost)
+     */
+    options.setUserPreferences({
+      'profile.default_content_settings.images': 2,
+    });
+    options.setUserPreferences({
+      'profile.managed_default_content_settings.images': 2,
+    });
+
     // options.addArguments('--disable-dev-shm-usage');
     // options.headless();
 
