@@ -121,6 +121,8 @@ export class SeleniumService {
     this.logger.debug('Fetching season details');
     return browser.executeScript(`
       var seasons = {};
+      var current = {};
+
       $('#watch #episodes .bl-seasons ul li').each(
         (key, item) => {
           seasons[$(item).attr('data-id')] = {
@@ -138,18 +140,36 @@ export class SeleniumService {
             var seasonId = $(value).attr("data-season")
             $(value).find('li a').each(
               (episodeKey, episodeValue) => {
-                seasons[seasonId].episodes.push({
+                var title = $(episodeValue).find('span').text().trim()
+
+                var temp = {
                   number: parseInt($(episodeValue).attr('data-kname').replace(seasonId + ':', '')),
                   path: $(episodeValue).attr('href').replace("${this.baseUri}", ''),
-                  title: $(episodeValue).find('span').text().trim(),
-                })
+
+                  // Sometimes the title is an empty string, in that case we'll return null
+                  title: title !== "" ? title : null,
+                }
+
+                // If element has "active" class, means current video link is this episode
+                // So we'll mark this episode as "active" episode in another variable
+                if ($(episodeValue).hasClass('active')) {
+                  current = {
+                    seasonNumber: parseInt(seasonId),
+                    episode: temp
+                  }
+                }
+
+                seasons[seasonId].episodes.push(temp)
               }
             )
           }
         }
       )
 
-      return Object.values(seasons);
+      return {
+        current,
+        items: Object.values(seasons),
+      };
     `);
   }
 
@@ -205,7 +225,7 @@ export class SeleniumService {
       }`);
 
     const seasons =
-      type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : [];
+      type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : {};
 
     this.logger.debug('Waiting for iframe video to load');
     await browser.wait(until.elementLocated(By.css(selectors.iframe)));
