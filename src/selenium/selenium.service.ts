@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosResponse } from 'axios';
 import 'chromedriver';
@@ -14,6 +14,7 @@ import { Options } from 'selenium-webdriver/chrome';
 import { MCloudResponse } from './types/response.types';
 
 const caps = new Capabilities();
+caps.setPageLoadStrategy('eager');
 
 export enum VideoType {
   SERIES = 'series',
@@ -28,6 +29,8 @@ enum ServerID {
 
 @Injectable()
 export class SeleniumService {
+  private readonly logger = new Logger(SeleniumService.name);
+
   private readonly baseUri: string;
 
   constructor(private readonly configService: ConfigService) {
@@ -35,7 +38,9 @@ export class SeleniumService {
   }
 
   private createBrowser() {
+    this.logger.debug('Creating browser');
     const options = new Options();
+    options.addArguments('--disable-notifications');
     // options.addArguments('--disable-dev-shm-usage');
     // options.headless();
 
@@ -47,6 +52,7 @@ export class SeleniumService {
   }
 
   private async getMCloudEmbedDetails(videoCode: string) {
+    this.logger.debug('Fetching MGCloud embed details');
     const response: AxiosResponse<MCloudResponse> = await axios.get(
       `https://mcloud.to/info/${videoCode}`,
       {
@@ -69,10 +75,13 @@ export class SeleniumService {
         cdn.stream = response.data.media.sources[i].file;
       }
     }
+
+    this.logger.debug('Returning MGCloud embed details');
     return cdn;
   }
 
   private async findVideoType(browser: ThenableWebDriver): Promise<VideoType> {
+    this.logger.debug('Finding the video type');
     return browser.executeScript(`
       var videoType = undefined;
       $(".breadcrumb").find(".breadcrumb-item").each((key, value) => {
@@ -91,6 +100,7 @@ export class SeleniumService {
 
   // TODO: add response type
   private async fetchSeasonDetails(browser: ThenableWebDriver) {
+    this.logger.debug('Fetching season details');
     return browser.executeScript(`
       var seasons = {};
       $('#watch #episodes .bl-seasons ul li').each(
@@ -126,6 +136,7 @@ export class SeleniumService {
   }
 
   async getVideoDetails(path: string) {
+    this.logger.debug('Getting video details');
     const browser = this.createBrowser();
     const selectors = {
       iframe: '#body #watch #player iframe',
@@ -133,14 +144,26 @@ export class SeleniumService {
       serversMovie: '#watch #episodes bl-servers.movie',
     };
 
+    this.logger.debug(`Navigating to path ${path}`);
     browser.navigate().to(this.baseUri + path);
 
+    this.logger.debug('Executing optimization script');
+    // Optimize webpage
+    await browser.executeScript(`
+      $("[__idm_frm__]").remove(); // Remove ads
+      $('footer').remove(); // Remove footer
+      $("#comment").remove(); // Remove comment section
+      $(".more").click(); // Click on " + more " button to expand details
+    `);
+    this.logger.debug('Optimization script executed');
+
+    this.logger.debug('Waiting for servers to load');
     await browser.wait(until.elementLocated(By.css(selectors.servers)));
+    this.logger.debug('Servers loaded');
 
     const type = await this.findVideoType(browser);
 
-    const info = await browser.executeScript(
-      `$(".more").click();
+    const info = await browser.executeScript(`
       return {
         name: $("#watch .watch-extra .info .title").text().trim(),
         background: $("#watch .play").css("background-image").replace('url(\"', '').replace('\")',''),
@@ -149,13 +172,15 @@ export class SeleniumService {
         imdb: parseFloat($("#watch .watch-extra .info .imdb").text().trim()),
         quality: $("#watch .watch-extra .info .quality").text().trim(),
         // TODO: return related videos
-      }`,
-    );
+      }`);
 
     const seasons =
       type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : [];
 
+    this.logger.debug('Waiting for iframe video to load');
     await browser.wait(until.elementLocated(By.css(selectors.iframe)));
+    this.logger.debug('Iframe loaded');
+
     const iframeSrc = await browser.executeScript<string>(
       `return $("${selectors.iframe}").attr("src")`,
     );
