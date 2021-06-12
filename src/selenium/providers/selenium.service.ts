@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import 'chromedriver';
 import { Builder, Capabilities, ThenableWebDriver } from 'selenium-webdriver';
 import { Options } from 'selenium-webdriver/chrome';
@@ -10,11 +11,15 @@ caps.setPageLoadStrategy('eager');
 export class SeleniumService {
   private readonly logger = new Logger(SeleniumService.name);
 
+  constructor(private readonly configService: ConfigService) {}
+
   createBrowser(): ThenableWebDriver {
     this.logger.debug('Creating browser');
     const options = new Options();
 
-    options.headless();
+    if (this.configService.get('selenium.headless')) {
+      options.headless();
+    }
 
     // Disable notification prompts
     options.addArguments(

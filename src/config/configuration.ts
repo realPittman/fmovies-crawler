@@ -4,6 +4,9 @@ export default () => ({
   fmovies: {
     baseUri: process.env.FMOVIES_BASE_URI || 'https://fmovies.to/',
   },
+  selenium: {
+    headless: process.env.SELENIUM_HEADLESS || false,
+  },
   cache: {
     ttl: process.env.CACHE_TLL || 5,
     max: process.env.CACHE_MAX_ITEMS || 10,
