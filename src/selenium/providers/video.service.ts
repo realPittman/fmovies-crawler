@@ -1,20 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios, { AxiosResponse } from 'axios';
-import 'chromedriver';
 import * as _ from 'lodash';
-import {
-  Builder,
-  By,
-  Capabilities,
-  ThenableWebDriver,
-  until,
-} from 'selenium-webdriver';
-import { Options } from 'selenium-webdriver/chrome';
-import { MCloudResponse } from './types/response.types';
-
-const caps = new Capabilities();
-caps.setPageLoadStrategy('eager');
+import { By, ThenableWebDriver, until } from 'selenium-webdriver';
+import { MCloudResponse } from '../types/response.types';
+import { SeleniumService } from './selenium.service';
 
 export enum VideoType {
   SERIES = 'series',
@@ -28,58 +17,29 @@ enum ServerID {
 }
 
 @Injectable()
-export class SeleniumService {
-  private readonly logger = new Logger(SeleniumService.name);
+export class VideoService {
+  private readonly logger = new Logger(VideoService.name);
 
   private readonly baseUri: string;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly seleniumService: SeleniumService,
+    private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
+  ) {
     this.baseUri = this.configService.get('fmovies.baseUri');
-  }
-
-  private createBrowser() {
-    this.logger.debug('Creating browser');
-    const options = new Options();
-
-    options.headless();
-
-    // Disable notification prompts
-    options.addArguments(
-      '--disable-notifications',
-      '--enable-heavy-ad-intervention',
-      '--enable-parallel-downloading',
-      '--enable-lite-video',
-      '--enable-quic',
-      '--block-new-web-contents', // All pop-ups and calls to window.open will fail
-      // '--disable-dev-shm-usage',
-    );
-
-    /**
-     * Disable all images (performance boost)
-     */
-    options.setUserPreferences({
-      'profile.default_content_settings.images': 2,
-      'profile.managed_default_content_settings.images': 2,
-    });
-
-    return new Builder()
-      .withCapabilities(caps)
-      .forBrowser('chrome')
-      .setChromeOptions(options)
-      .build();
   }
 
   private async getMCloudEmbedDetails(videoCode: string) {
     this.logger.debug('Fetching MGCloud embed details');
-    const response: AxiosResponse<MCloudResponse> = await axios.get(
-      `https://mcloud.to/info/${videoCode}`,
-      {
+    const response = await this.httpService
+      .get<MCloudResponse>(`https://mcloud.to/info/${videoCode}`, {
         headers: {
           // This header is required, otherwise MCloud will return an empty response
           referer: 'https://mcloud.to/',
         },
-      },
-    );
+      })
+      .toPromise();
 
     const cdn = {
       download: '',
@@ -188,13 +148,7 @@ export class SeleniumService {
 
   async getVideoDetails(path: string) {
     this.logger.debug('Getting video details');
-    const browser = this.createBrowser();
-
-    const selectors = {
-      iframe: '#body #watch #player iframe',
-      servers: '#watch #episodes .bl-servers',
-      serversMovie: '#watch #episodes bl-servers.movie',
-    };
+    const browser = this.seleniumService.createBrowser();
 
     this.logger.debug(`Navigating to path ${path}`);
     await browser.navigate().to(this.baseUri + path);
@@ -202,7 +156,9 @@ export class SeleniumService {
     await this.executeOptimizationScripts(browser);
 
     this.logger.debug('Waiting for servers to load');
-    await browser.wait(until.elementLocated(By.css(selectors.servers)));
+    await browser.wait(
+      until.elementLocated(By.css('#watch #episodes .bl-servers')),
+    );
     this.logger.debug('Servers loaded');
 
     const type = await this.findVideoType(browser);
@@ -227,12 +183,14 @@ export class SeleniumService {
     const seasons =
       type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : {};
 
+    const iframeSelector = '#body #watch #player iframe';
+
     this.logger.debug('Waiting for iframe video to load');
-    await browser.wait(until.elementLocated(By.css(selectors.iframe)));
+    await browser.wait(until.elementLocated(By.css(iframeSelector)));
     this.logger.debug('Iframe loaded');
 
     const iframeSrc = await browser.executeScript<string>(
-      `return $("${selectors.iframe}").attr("src")`,
+      `return $("${iframeSelector}").attr("src")`,
     );
 
     const response = {
@@ -247,26 +205,5 @@ export class SeleniumService {
     await browser.quit();
 
     return response;
-  }
-
-  // TODO: add parameters
-  async search() {
-    // TODO: write logic
-  }
-
-  async simpleSearch(keyword: string) {
-    const response: AxiosResponse<{ html: string }> = await axios.get(
-      'ajax/film/search',
-      {
-        baseURL: this.baseUri,
-        params: {
-          keyword,
-        },
-      },
-    );
-
-    // TODO: extract information from html response by using Regex or DOM
-
-    return response.data.html;
   }
 }

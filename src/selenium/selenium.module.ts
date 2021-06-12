@@ -1,10 +1,13 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { CacheModule, HttpModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SeleniumController } from './selenium.controller';
-import { SeleniumService } from './selenium.service';
+import { SeleniumService } from './providers/selenium.service';
+import { VideoService } from './providers/video.service';
+import { SearchService } from './providers/search.service';
 
 @Module({
   imports: [
+    HttpModule,
     CacheModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -14,7 +17,7 @@ import { SeleniumService } from './selenium.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [SeleniumService],
+  providers: [SeleniumService, VideoService, SearchService],
   controllers: [SeleniumController],
   exports: [SeleniumService],
 })

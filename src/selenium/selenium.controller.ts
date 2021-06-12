@@ -7,26 +7,30 @@ import {
 } from '@nestjs/common';
 import { SimpleSearchDto } from './dto/simple-search.dto';
 import { VideoDto } from './dto/video.dto';
-import { SeleniumService } from './selenium.service';
+import { SearchService } from './providers/search.service';
+import { VideoService } from './providers/video.service';
 
 @Controller()
 @UseInterceptors(CacheInterceptor)
 export class SeleniumController {
-  constructor(private readonly seleniumService: SeleniumService) {}
+  constructor(
+    private readonly videoService: VideoService,
+    private readonly searchService: SearchService,
+  ) {}
 
   @Get('simple-search')
   simpleSearch(@Query() input: SimpleSearchDto) {
-    return this.seleniumService.simpleSearch(input.keyword);
+    return this.searchService.simpleSearch(input.keyword);
   }
 
   @Get('search')
   // TODO: validate input
   search() {
-    return this.seleniumService.search();
+    return this.searchService.search();
   }
 
   @Get('video')
   getVideoDetails(@Query() input: VideoDto) {
-    return this.seleniumService.getVideoDetails(input.path);
+    return this.videoService.getVideoDetails(input.path);
   }
 }
