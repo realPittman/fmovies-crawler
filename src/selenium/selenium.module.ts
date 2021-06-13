@@ -1,9 +1,10 @@
 import { CacheModule, HttpModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SeleniumController } from './selenium.controller';
+import { VideoController } from './controllers/video.controller';
 import { SeleniumService } from './providers/selenium.service';
 import { VideoService } from './providers/video.service';
 import { SearchService } from './providers/search.service';
+import { SearchController } from './controllers/search.controller';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { SearchService } from './providers/search.service';
     }),
   ],
   providers: [SeleniumService, VideoService, SearchService],
-  controllers: [SeleniumController],
+  controllers: [VideoController, SearchController],
   exports: [SeleniumService],
 })
 export class SeleniumModule {}

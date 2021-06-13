@@ -148,7 +148,7 @@ export class VideoService {
     `);
   }
 
-  async getVideoDetails(path: string) {
+  async details(path: string) {
     this.logger.debug('Getting video details', path);
     const browser = this.seleniumService.createBrowser();
 
