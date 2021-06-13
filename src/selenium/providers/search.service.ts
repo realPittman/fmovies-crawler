@@ -52,7 +52,7 @@ export class SearchService {
           .getAttribute('src')
           .trim()
           .replace('-w100', ''),
-        href: itemElements[i].getAttribute('href'),
+        path: itemElements[i].getAttribute('href').replace('/film/', ''),
         imdb: parseFloat(
           itemElements[i].querySelector('.imdb').text.trim(),
         ).toFixed(2),
