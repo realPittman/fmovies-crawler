@@ -5,6 +5,8 @@ import { SeleniumService } from './providers/selenium.service';
 import { VideoService } from './providers/video.service';
 import { SearchService } from './providers/search.service';
 import { SearchController } from './controllers/search.controller';
+import { HomeController } from './controllers/home.controller';
+import { HomeService } from './providers/home.service';
 
 @Module({
   imports: [
@@ -18,8 +20,8 @@ import { SearchController } from './controllers/search.controller';
       inject: [ConfigService],
     }),
   ],
-  providers: [SeleniumService, VideoService, SearchService],
-  controllers: [VideoController, SearchController],
+  providers: [SeleniumService, VideoService, SearchService, HomeService],
+  controllers: [VideoController, SearchController, HomeController],
   exports: [SeleniumService],
 })
 export class SeleniumModule {}
