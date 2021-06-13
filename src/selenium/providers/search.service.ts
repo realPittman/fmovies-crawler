@@ -75,6 +75,8 @@ export class SearchService {
           // TODO: handle params
           sort: 'default',
           // genre: [],
+          // If this parameter be passed, filter will include all selected genres
+          // genre_mode: 'and',
           // type: [],
           // country: [],
           // release: [],
