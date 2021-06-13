@@ -1,12 +1,12 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as _ from 'lodash';
 import parse, { HTMLElement } from 'node-html-parser';
 import { VideoType } from './video.service';
 
 @Injectable()
 export class HomeService {
   private readonly baseUri: string;
+  private readonly homePath = 'home';
 
   constructor(
     private readonly configService: ConfigService,
@@ -17,7 +17,7 @@ export class HomeService {
 
   private async getHomePage() {
     return this.httpService
-      .get<string>('home', {
+      .get<string>(this.homePath, {
         baseURL: this.baseUri,
       })
       .toPromise();
@@ -71,7 +71,7 @@ export class HomeService {
 
   private processSections(items: HTMLElement[]) {
     return {
-      recommend: this.processRecommendedSection(items[0]),
+      recommended: this.processRecommendedSection(items[0]),
       movies: this.processNormalSection(items[1]),
       series: this.processNormalSection(items[2]),
       requested: this.processNormalSection(items[3]),
@@ -79,36 +79,59 @@ export class HomeService {
   }
 
   private processRecommendedSection(section: HTMLElement) {
-    // TODO: write logic
+    return {
+      movies: this.processRecommendedSectionContent(
+        section.querySelector('.content[data-name="movies"]'),
+      ),
+      series: this.processRecommendedSectionContent(
+        section.querySelector('.content[data-name="shows"]'),
+      ),
+      trending: this.processRecommendedSectionContent(
+        section.querySelector('.content[data-name="trending"]'),
+      ),
+    };
+  }
+
+  private processRecommendedSectionContent(content: HTMLElement) {
+    const response = [];
+
+    content
+      .querySelectorAll('div.item')
+      .forEach((item) => response.push(this.processItem(item)));
+
+    return response;
   }
 
   private processNormalSection(section: HTMLElement) {
     const response = [];
 
-    const items = section.querySelectorAll('.content div.item');
-    for (let i = 0; i < items.length; i++) {
-      const type = items[i].querySelector('.meta .type').text.trim();
-      const description = items[i]
-        .querySelector('.meta')
-        .structuredText.replace(type, '')
-        .trim();
-      response.push({
-        title: items[i].querySelector('.title').text.trim(),
-        quality: items[i].querySelector('.quality').text,
-        path: items[i]
-          .querySelector('a.poster')
-          .getAttribute('href')
-          .replace('/film/', ''),
-        poster: items[i]
-          .querySelector('img')
-          .getAttribute('src')
-          .replace('-w180', ''),
-        imdb: items[i].querySelector('.imdb').text.trim(),
-        type: type === 'TV' ? VideoType.SERIES : VideoType.MOVIE,
-        description,
-      });
-    }
+    section
+      .querySelectorAll('.content div.item')
+      .forEach((item) => response.push(this.processItem(item)));
 
     return response;
+  }
+
+  private processItem(item: HTMLElement) {
+    const type = item.querySelector('.meta .type').text.trim();
+    const description = item
+      .querySelector('.meta')
+      .structuredText.replace(type, '')
+      .trim();
+    return {
+      title: item.querySelector('.title').text.trim(),
+      quality: item.querySelector('.quality').text,
+      path: item
+        .querySelector('a.poster')
+        .getAttribute('href')
+        .replace('/film/', ''),
+      poster: item
+        .querySelector('img')
+        .getAttribute('src')
+        .replace('-w180', ''),
+      imdb: item.querySelector('.imdb').text.trim(),
+      type: type === 'TV' ? VideoType.SERIES : VideoType.MOVIE,
+      description,
+    };
   }
 }
