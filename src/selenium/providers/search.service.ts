@@ -1,8 +1,9 @@
 import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { searchOptions } from 'src/common/constants/search-options';
-import { parse } from 'node-html-parser';
 import * as _ from 'lodash';
+import { parse } from 'node-html-parser';
+import { searchOptions } from 'src/common/constants/search-options';
+import { HomeService } from './home.service';
 import { VideoType } from './video.service';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class SearchService {
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
+    private readonly homeService: HomeService,
   ) {
     this.baseUri = this.configService.get('fmovies.baseUri');
   }
@@ -64,9 +66,28 @@ export class SearchService {
     return items;
   }
 
-  // TODO: add parameters
+  // TODO: add input parameters
   async advanced() {
-    // TODO: write logic
+    const page = await this.httpService
+      .get<string>('filter', {
+        baseURL: this.baseUri,
+        params: {
+          // TODO: handle params
+          sort: 'default',
+          // genre: [],
+          // type: [],
+          // country: [],
+          // release: [],
+          // quality: [],
+          // subtitle: [],
+          page: 1,
+        },
+      })
+      .toPromise();
+
+    return parse(page.data)
+      .querySelectorAll('.content div.item')
+      .map((item) => this.homeService.processItem(item));
   }
 
   options() {
