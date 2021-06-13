@@ -38,7 +38,7 @@
     -   Latest Movies
     -   Latest Series
     -   Requested Videos
--   video simple details _(work in progress)_
+-   Video simple details _(work in progress)_
     -   Includes short information about the video
 -   Video details
     -   Includes full information about the video
@@ -60,7 +60,7 @@ Docker is a tool designed to make it easier to create, deploy, and run applicati
 
 Containers allow a developer to package up an application with all of the parts it needs, such as libraries and other dependencies, and deploy it as one package.
 
-We recommend you tp run this application as Docker containers, instead of running it on your local machine.
+We recommend you to run this application as Docker containers, instead of running it on your local machine.
 
 If you're not familiar with Docker, [this guide](https://docs.docker.com/get-started/) is a great point to start.
 
@@ -82,14 +82,14 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml --env-file ./.en
 
 ### Debugging with VNC Viewer
 
-If you're running the application in Docker, you can connect to Selenium container with VNC viewer with a graphical interface to see what's going on behind the scene.
+By using VNC Viewer, you can connect to the Selenium container to see what's going on behind the scene.
 
 If you don't have VNC Viewer installed on your machine, try to [download and install VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/).
 
--   Edit `.env` file and set `SELENIUM_HEADLESS` to `false`
-*   Open VNC Viewer and enter `127.0.0.1:7900` in the address bar
-*   Use the password `secret` and leave the username to be empty.
-*   Enjoy!
+-   edit `.env` file and set `SELENIUM_HEADLESS` to `false`
+-   open VNC Viewer and enter `127.0.0.1:7900` in the address bar
+-   use password `secret` and leave the username to be empty.
+-   enjoy!
 
 ## Installing locally
 
