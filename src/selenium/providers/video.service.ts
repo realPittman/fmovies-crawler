@@ -36,30 +36,38 @@ export class VideoService {
   }
 
   private async getMCloudEmbedDetails(videoCode: string) {
-    const response = await this.httpService
-      .get<MCloudResponse>(`https://mcloud.to/info/${videoCode}`, {
-        headers: {
-          // This header is required, otherwise MCloud will return an empty response
-          referer: 'https://mcloud.to/',
-        },
-      })
-      .toPromise();
+    try {
+      const response = await this.httpService
+        .get<MCloudResponse>(`https://mcloud.to/info/${videoCode}`, {
+          headers: {
+            // This header is required, otherwise MCloud will return an empty response
+            referer: 'https://mcloud.to/',
+          },
+        })
+        .toPromise();
 
-    const cdn = {
-      download: '',
-      stream: '',
-    };
+      const cdn = {
+        download: '',
+        stream: '',
+      };
 
-    for (let i = 0; i < response.data.media.sources.length; i++) {
-      if (response.data.media.sources[i].label) {
-        cdn.download = response.data.media.sources[i].file;
-      } else {
-        cdn.stream = response.data.media.sources[i].file;
+      for (let i = 0; i < response.data.media.sources.length; i++) {
+        if (response.data.media.sources[i].label) {
+          cdn.download = response.data.media.sources[i].file;
+        } else {
+          cdn.stream = response.data.media.sources[i].file;
+        }
       }
-    }
 
-    this.logger.debug('Returning MGCloud embed details');
-    return cdn;
+      this.logger.debug('Returning MGCloud embed details');
+      return cdn;
+    } catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException(
+        'Video maybe got deleted by the owner or was removed due a copyright violation',
+        'Could not fetch CDN details from MGCloud.',
+      );
+    }
   }
 
   private async findVideoType(browser: ThenableWebDriver): Promise<VideoType> {
@@ -154,7 +162,7 @@ export class VideoService {
 
     try {
       this.logger.debug(`Navigating to URL`, path);
-      await browser.navigate().to(this.baseUri + path);
+      await browser.navigate().to(this.baseUri + 'film/' + path);
     } catch (err) {
       await browser.close();
       throw new InternalServerErrorException('Could not navigate to website.');
@@ -224,6 +232,8 @@ export class VideoService {
       `return $("${iframeSelector}").attr("src")`,
     );
 
+    await browser.quit();
+
     this.logger.debug('Fetching MGCloud embed details', path);
     const response = {
       type,
@@ -233,8 +243,6 @@ export class VideoService {
         _.last(new URL(iframeSrc).pathname.split('/')),
       ),
     };
-
-    await browser.quit();
 
     return response;
   }
