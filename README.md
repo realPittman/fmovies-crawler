@@ -44,5 +44,5 @@ yarn start:prod
 
 ## Useful resources
 
--   [FMovies.name](https://fmovies.name/) - The official FMovies website that lists their active domains. _(It can be used in environment variable as `FMOVIES_BASE_URI`)_
+-   [FMovies.name](https://fmovies.name/) - The official FMovies website that lists their active domains.
 -   [Download VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/) - To integrate VNC viewer with Docker container.
