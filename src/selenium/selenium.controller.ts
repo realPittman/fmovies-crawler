@@ -28,14 +28,16 @@ export class SeleniumController {
     return this.searchService.simple(input.keyword);
   }
 
-  @Get('search')
+  @Get('search/advanced')
   // TODO: validate input
-  search() {
-    return this.searchService.search();
+  advanced() {
+    return this.searchService.advanced();
   }
 
   @Get('video')
   getVideoDetails(@Query() input: VideoDto) {
     return this.videoService.getVideoDetails(input.path);
   }
+
+  // TODO: homepage route
 }

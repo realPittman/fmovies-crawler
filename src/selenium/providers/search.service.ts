@@ -65,7 +65,7 @@ export class SearchService {
   }
 
   // TODO: add parameters
-  async search() {
+  async advanced() {
     // TODO: write logic
   }
 
