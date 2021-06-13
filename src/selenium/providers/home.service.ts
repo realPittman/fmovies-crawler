@@ -93,26 +93,18 @@ export class HomeService {
   }
 
   private processRecommendedSectionContent(content: HTMLElement) {
-    const response = [];
-
-    content
+    return content
       .querySelectorAll('div.item')
-      .forEach((item) => response.push(this.processItem(item)));
-
-    return response;
+      .map((item) => this.processItem(item));
   }
 
   private processNormalSection(section: HTMLElement) {
-    const response = [];
-
-    section
+    return section
       .querySelectorAll('.content div.item')
-      .forEach((item) => response.push(this.processItem(item)));
-
-    return response;
+      .map((item) => this.processItem(item));
   }
 
-  private processItem(item: HTMLElement) {
+  processItem(item: HTMLElement) {
     const type = item.querySelector('.meta .type').text.trim();
     const description = item
       .querySelector('.meta')
