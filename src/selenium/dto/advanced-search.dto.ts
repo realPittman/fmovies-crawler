@@ -8,6 +8,7 @@ import {
 import {
   CountrySlugs,
   GenreSlugs,
+  QualitySlugs,
 } from '../../common/constants/search-options';
 import { VideoType } from '../providers/video.service';
 
@@ -34,6 +35,10 @@ export class AdvancedSearchDto {
   @IsOptional()
   @IsEnum(CountrySlugs, { each: true, message: 'Invalid countries array.' })
   countries: CountrySlugs[];
+
+  @IsOptional()
+  @IsEnum(QualitySlugs, { each: true, message: 'Invalid qualities array.' })
+  qualities: QualitySlugs[];
 
   @IsOptional()
   @IsNumber({ allowNaN: false }, { each: true })

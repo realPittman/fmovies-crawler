@@ -84,8 +84,7 @@ export class SearchService {
           type: input.type,
           country: this.convertSlugsToKeys('countries', input.countries),
           release: input.release,
-          // TODO: handle params
-          // quality: [],
+          quality: this.convertQualitiesSlugsToKeys(input.qualities),
           subtitle: input.with_subtitle ? 1 : 0, // Should be numeric boolean
           page: input.page,
         },
@@ -107,6 +106,20 @@ export class SearchService {
     return inputs.map(
       (input) =>
         _.first(searchOptions[type].filter((temp) => temp.slug === input)).key,
+    );
+  }
+
+  private convertQualitiesSlugsToKeys(inputs?: string[]) {
+    if (!inputs) return;
+    if (typeof inputs === 'string')
+      throw new BadRequestException(
+        `Parameter "qualities" should be array of strings (slugs).`,
+      );
+
+    return inputs.map(
+      (input) =>
+        _.first(searchOptions.qualities.filter((temp) => temp.slug === input))
+          .key,
     );
   }
 
