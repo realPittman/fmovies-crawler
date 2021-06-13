@@ -1,5 +1,9 @@
 import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { searchOptions } from 'src/common/constants/search-options';
+import { parse } from 'node-html-parser';
+import * as _ from 'lodash';
+import { VideoType } from './video.service';
 
 @Injectable()
 export class SearchService {
@@ -14,11 +18,11 @@ export class SearchService {
     this.baseUri = this.configService.get('fmovies.baseUri');
   }
 
-  async simpleSearch(keyword: string) {
+  async simple(keyword: string) {
     this.logger.debug(`Got the keyword to simple search "${keyword}"`);
 
     const response = await this.httpService
-      .get<{ html: any }>('ajax/film/search', {
+      .get<{ html: string }>('ajax/film/search', {
         baseURL: this.baseUri,
         params: {
           keyword,
@@ -26,13 +30,46 @@ export class SearchService {
       })
       .toPromise();
 
-    // TODO: extract information from html response by using Regex or DOM
+    const items = [];
 
-    return response.data.html;
+    const itemElements = parse(response.data.html).querySelectorAll('.item');
+    for (let i = 0; i < itemElements.length; i++) {
+      const meta = itemElements[i]
+        .querySelector('.meta')
+        .structuredText.trim()
+        .split(' ');
+
+      meta.shift();
+      const year = parseInt(meta[0]);
+      meta.shift();
+      const type = _.last(meta) === 'min' ? VideoType.MOVIE : VideoType.SERIES;
+
+      items.push({
+        type,
+        title: itemElements[i].querySelector('.title').text.trim(),
+        poster: itemElements[i]
+          .querySelector('.poster img')
+          .getAttribute('src')
+          .trim()
+          .replace('-w100', ''),
+        href: itemElements[i].getAttribute('href'),
+        imdb: parseFloat(
+          itemElements[i].querySelector('.imdb').text.trim(),
+        ).toFixed(2),
+        year,
+        details: meta.join(' ').replace('min', 'mins').replace('na mins', ''),
+      });
+    }
+
+    return items;
   }
 
   // TODO: add parameters
   async search() {
     // TODO: write logic
+  }
+
+  options() {
+    return searchOptions;
   }
 }
