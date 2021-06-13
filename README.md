@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Scrip7/fmovies-crawler" target="_blank">fmovies-crawler</a> is built on top of the <a href="https://github.com/nestjs/nest" target="_blank">Nest</a> framework<br/>And it uses <a href="https://www.npmjs.com/package/selenium-webdriver" target="_blank">selenium-webdriver</a> under the hood.<br/>It allows you to fetch Movies and TV series information from the FMovies website.
+  <a href="https://github.com/Scrip7/fmovies-crawler" target="_blank">fmovies-crawler</a> is built on top of the <a href="https://github.com/nestjs/nest" target="_blank">Nest</a> framework<br/>Uses <a href="https://www.npmjs.com/package/selenium-webdriver" target="_blank">selenium-webdriver</a> and <a href="https://www.npmjs.com/package/node-html-parser" target="_blank">node-html-parser</a> under the hood<br/>Allows you to fetch Movies and TV series from the FMovies website
 </p>
 
 <p align="center">
