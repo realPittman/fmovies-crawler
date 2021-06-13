@@ -86,9 +86,9 @@ By using VNC Viewer, you can connect to the Selenium container to see what's goi
 
 If you don't have VNC Viewer installed on your machine, try to [download and install VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/).
 
--   edit `.env` file and set `SELENIUM_HEADLESS` to `false`
+-   edit `.env` file and set `SELENIUM_HEADLESS` to `false`, then restart the app container if it's already running
 -   open VNC Viewer and enter `127.0.0.1:7900` in the address bar
--   use password `secret` and leave the username to be empty.
+-   use password `secret` and leave the username to be empty
 -   enjoy!
 
 ## Installing locally
