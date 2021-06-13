@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import { parse } from 'node-html-parser';
 import { searchOptions } from 'src/common/constants/search-options';
+import { AdvancedSearchDto } from '../dto/advanced-search.dto';
 import { HomeService } from './home.service';
 import { VideoType } from './video.service';
 
@@ -66,23 +67,22 @@ export class SearchService {
     return items;
   }
 
-  // TODO: add input parameters
-  async advanced() {
+  async advanced(input: AdvancedSearchDto) {
     const page = await this.httpService
       .get<string>('filter', {
         baseURL: this.baseUri,
         params: {
           // TODO: handle params
           sort: 'default',
-          // genre: [],
+          genre: this.processGenreParam(input.genres), // TODO: convert slug to key
           // If this parameter be passed, filter will include all selected genres
-          // genre_mode: 'and',
-          // type: [],
+          genre_mode: input.include_all_genres ? 'and' : undefined, // Should be "and" or undefined
+          type: input.type,
           // country: [],
           // release: [],
           // quality: [],
-          // subtitle: [],
-          page: 1,
+          subtitle: input.with_subtitle ? 1 : 0, // Should be numeric boolean
+          page: input.page,
         },
       })
       .toPromise();
@@ -90,6 +90,15 @@ export class SearchService {
     return parse(page.data)
       .querySelectorAll('.content div.item')
       .map((item) => this.homeService.processItem(item));
+  }
+
+  private processGenreParam(genres?: string[]) {
+    if (!genres) return;
+
+    return genres.map(
+      (genre) =>
+        _.first(searchOptions.genres.filter((temp) => temp.slug === genre)).key,
+    );
   }
 
   options() {

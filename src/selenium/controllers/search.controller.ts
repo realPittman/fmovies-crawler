@@ -1,10 +1,13 @@
 import {
+  Body,
   CacheInterceptor,
   Controller,
   Get,
+  Post,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
+import { AdvancedSearchDto } from '../dto/advanced-search.dto';
 import { SimpleSearchDto } from '../dto/simple-search.dto';
 import { SearchService } from '../providers/search.service';
 
@@ -23,9 +26,8 @@ export class SearchController {
     return this.searchService.simple(input.keyword);
   }
 
-  @Get('advanced')
-  // TODO: validate input
-  advanced() {
-    return this.searchService.advanced();
+  @Post('advanced')
+  advanced(@Body() input: AdvancedSearchDto) {
+    return this.searchService.advanced(input);
   }
 }
