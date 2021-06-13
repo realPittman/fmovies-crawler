@@ -18,9 +18,14 @@ export class SeleniumController {
     private readonly searchService: SearchService,
   ) {}
 
-  @Get('simple-search')
-  simpleSearch(@Query() input: SimpleSearchDto) {
-    return this.searchService.simpleSearch(input.keyword);
+  @Get('search/options')
+  options() {
+    return this.searchService.options();
+  }
+
+  @Get('search/simple')
+  simple(@Query() input: SimpleSearchDto) {
+    return this.searchService.simple(input.keyword);
   }
 
   @Get('search')
