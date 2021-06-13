@@ -17,6 +17,4 @@ export class VideoController {
   details(@Query() input: VideoDto) {
     return this.videoService.details(input.path);
   }
-
-  // TODO: homepage route
 }
