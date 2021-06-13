@@ -5,7 +5,10 @@ import {
   IsOptional,
   IsPositive,
 } from 'class-validator';
-import { GenreSlugs } from '../../common/constants/search-options';
+import {
+  CountrySlugs,
+  GenreSlugs,
+} from '../../common/constants/search-options';
 import { VideoType } from '../providers/video.service';
 
 export class AdvancedSearchDto {
@@ -27,6 +30,15 @@ export class AdvancedSearchDto {
     message: `Type can only be "${VideoType.MOVIE}" or "${VideoType.SERIES}"`,
   })
   type: VideoType[];
+
+  @IsOptional()
+  @IsEnum(CountrySlugs, { each: true, message: 'Invalid countries array.' })
+  countries: CountrySlugs[];
+
+  @IsOptional()
+  @IsNumber({ allowNaN: false }, { each: true })
+  @IsPositive({ each: true })
+  release: number[];
 
   @IsOptional()
   @IsNumber()

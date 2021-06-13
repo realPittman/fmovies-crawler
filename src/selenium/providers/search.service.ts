@@ -1,4 +1,9 @@
-import { HttpService, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpService,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import { parse } from 'node-html-parser';
@@ -68,18 +73,19 @@ export class SearchService {
   }
 
   async advanced(input: AdvancedSearchDto) {
+    console.log(this.convertSlugsToKeys('countries', input.countries));
     const page = await this.httpService
       .get<string>('filter', {
         baseURL: this.baseUri,
         params: {
-          // TODO: handle params
-          sort: 'default',
-          genre: this.processGenreParam(input.genres), // TODO: convert slug to key
+          sort: 'default', // TODO: handle sort param
+          genre: this.convertSlugsToKeys('genres', input.genres),
           // If this parameter be passed, filter will include all selected genres
           genre_mode: input.include_all_genres ? 'and' : undefined, // Should be "and" or undefined
           type: input.type,
-          // country: [],
-          // release: [],
+          country: this.convertSlugsToKeys('countries', input.countries),
+          release: input.release,
+          // TODO: handle params
           // quality: [],
           subtitle: input.with_subtitle ? 1 : 0, // Should be numeric boolean
           page: input.page,
@@ -92,12 +98,16 @@ export class SearchService {
       .map((item) => this.homeService.processItem(item));
   }
 
-  private processGenreParam(genres?: string[]) {
-    if (!genres) return;
+  private convertSlugsToKeys(type: 'genres' | 'countries', inputs?: string[]) {
+    if (!inputs) return;
+    if (typeof inputs === 'string')
+      throw new BadRequestException(
+        `Parameter "${type}" should be array of strings (slugs).`,
+      );
 
-    return genres.map(
-      (genre) =>
-        _.first(searchOptions.genres.filter((temp) => temp.slug === genre)).key,
+    return inputs.map(
+      (input) =>
+        _.first(searchOptions[type].filter((temp) => temp.slug === input)).key,
     );
   }
 
