@@ -2,6 +2,7 @@ import { HttpService, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import parse, { HTMLElement } from 'node-html-parser';
+import { VideoType } from './video.service';
 
 @Injectable()
 export class HomeService {
@@ -25,11 +26,13 @@ export class HomeService {
   async homepage() {
     const page = await this.getHomePage();
     const root = parse(page.data);
-    const sections = root.querySelectorAll('#body > div.container > section');
 
     return {
       slider: this.processSlider(
         root.querySelectorAll('.swiper-wrapper > div.item'),
+      ),
+      ...this.processSections(
+        root.querySelectorAll('#body > div.container > section.bl'),
       ),
     };
   }
@@ -60,6 +63,49 @@ export class HomeService {
         path: items[i]
           .querySelector('.container .info .watchnow')
           .getAttribute('href'),
+      });
+    }
+
+    return response;
+  }
+
+  private processSections(items: HTMLElement[]) {
+    return {
+      recommend: this.processRecommendedSection(items[0]),
+      movies: this.processNormalSection(items[1]),
+      series: this.processNormalSection(items[2]),
+      requested: this.processNormalSection(items[3]),
+    };
+  }
+
+  private processRecommendedSection(section: HTMLElement) {
+    // TODO: write logic
+  }
+
+  private processNormalSection(section: HTMLElement) {
+    const response = [];
+
+    const items = section.querySelectorAll('.content div.item');
+    for (let i = 0; i < items.length; i++) {
+      const type = items[i].querySelector('.meta .type').text.trim();
+      const description = items[i]
+        .querySelector('.meta')
+        .structuredText.replace(type, '')
+        .trim();
+      response.push({
+        title: items[i].querySelector('.title').text.trim(),
+        quality: items[i].querySelector('.quality').text,
+        path: items[i]
+          .querySelector('a.poster')
+          .getAttribute('href')
+          .replace('/film/', ''),
+        poster: items[i]
+          .querySelector('img')
+          .getAttribute('src')
+          .replace('-w180', ''),
+        imdb: items[i].querySelector('.imdb').text.trim(),
+        type: type === 'TV' ? VideoType.SERIES : VideoType.MOVIE,
+        description,
       });
     }
 
