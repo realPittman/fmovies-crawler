@@ -73,7 +73,6 @@ export class SearchService {
   }
 
   async advanced(input: AdvancedSearchDto) {
-    console.log(this.convertSlugsToKeys('countries', input.countries));
     const page = await this.httpService
       .get<string>('filter', {
         baseURL: this.baseUri,
