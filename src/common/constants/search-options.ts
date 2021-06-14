@@ -1,30 +1,30 @@
 import { VideoType } from 'src/selenium/providers/video.service';
 
-interface GenreInterface {
+export interface GenreInterface {
   name: string;
   slug: string;
   key: number;
 }
 
-interface TypeInterface {
+export interface TypeInterface {
   name: string;
   slug: string;
   key: string;
 }
 
-interface CountryInterface {
+export interface CountryInterface {
   name: string;
   slug: string;
   key: number;
 }
 
-interface QualityInterface {
+export interface QualityInterface {
   name: string;
   slug: string;
   key: string;
 }
 
-interface SortInterface {
+export interface SortInterface {
   name: string;
   slug: string;
   key: string;
