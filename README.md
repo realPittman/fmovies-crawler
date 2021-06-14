@@ -26,24 +26,24 @@
 ## Features
 
 -   In-memory response caching
--   Supports multiple, and optimized selenium instances
+-   Supports multiple, optimized selenium instances
 
 ## Coverage
 
--   Simple video search (by name)
--   Advanced video search _(work in progress)_
+-   Simple video search _(only with the title)_
+-   Advanced video search
+    -   Filter by Genres, Video Types, Countries, and Qualities
+    -   Pagination
 -   Home page
     -   Slider
     -   Recommended Movies, Series, and Trending
     -   Latest Movies
     -   Latest Series
     -   Requested Videos
--   Video simple details _(work in progress)_
-    -   Includes short information about the video
--   Video details
-    -   Includes full information about the video
-    -   Download link _If available!_
-    -   Streaming link (with `.m3u8` extension)
+-   Simple video details _(work in progress)_
+-   Full video details
+    -   Download link _(If available!)_
+    -   Streaming link _(with `.m3u8` extension)_
     -   Series and episodes
 
 ## Configuration
