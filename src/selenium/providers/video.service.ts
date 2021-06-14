@@ -114,7 +114,7 @@ export class VideoService {
 
                 var temp = {
                   number: parseInt($(episodeValue).attr('data-kname').replace(seasonId + ':', '')),
-                  path: $(episodeValue).attr('href').replace("${this.baseUri}", ''),
+                  path: $(episodeValue).attr('href').replace("${this.baseUri}", '').replace('/film/', ''),
 
                   // Sometimes the title is an empty string, in that case we'll return null
                   title: title !== "" ? title : null,
@@ -205,9 +205,16 @@ export class VideoService {
         background,
         poster: $("#watch .watch-extra .info .poster img").attr("src").replace('-w380', ''),
         description: $("#watch .watch-extra .info .desc").text().trim().replace('  less', ''),
-        imdb: parseFloat($("#watch .watch-extra .info .imdb").text().trim()),
+        imdb: $("#watch .watch-extra .info .imdb").text().trim(),
         quality: $("#watch .watch-extra .info .quality").text().trim(),
-        // TODO: fetch video meta
+        meta: {
+          countries: $(".watch-extra .bl-1 .info .meta div:nth-child(1) span:nth-child(2)").text().trim(),
+          genres: $(".watch-extra .bl-1 .info .meta div:nth-child(2) span:nth-child(2)").text().trim(),
+          release: $(".watch-extra .bl-1 .info .meta div:nth-child(3) span:nth-child(2)").text().trim(),
+          directors: $(".watch-extra .bl-1 .info .meta div:nth-child(4) span:nth-child(2)").text().replace(',', ', ').trim(),
+          cast: $(".watch-extra .bl-1 .info .meta div:nth-child(5) span:nth-child(2)").text().trim().replace('  less', ''),
+          tags: $(".watch-extra .bl-1 .info .meta div:nth-child(6) span:nth-child(2)").text().trim().replace('  less', '')
+        },
         // TODO: return related videos
       }`);
 
