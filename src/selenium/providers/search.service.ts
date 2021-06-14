@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
-import { parse } from 'node-html-parser';
+import { HTMLElement, parse } from 'node-html-parser';
 import { searchOptions } from 'src/common/constants/search-options';
 import { AdvancedSearchDto } from '../dto/advanced-search.dto';
 import { HomeService } from './home.service';
@@ -73,27 +73,80 @@ export class SearchService {
   }
 
   async advanced(input: AdvancedSearchDto) {
+    const params = {
+      sort: input.sort ? this.convertSortSlugToKey(input.sort) : 'default',
+      genre: this.convertSlugsToNumericKeys('genres', input.genres),
+      // If this parameter be passed, filter will include all selected genres
+      genre_mode: input.include_all_genres ? 'and' : undefined, // Should be "and" or undefined
+      type: input.type,
+      country: this.convertSlugsToNumericKeys('countries', input.countries),
+      release: input.release,
+      quality: this.convertSlugsToStringKeys('qualities', input.qualities),
+      subtitle: this.handlerSubtitleParam(input.with_subtitle),
+      page: input.page,
+    };
+
+    this.logger.debug(
+      `Advanced searching with these params '${JSON.stringify(params)}'`,
+    );
+
     const page = await this.httpService
       .get<string>('filter', {
         baseURL: this.baseUri,
-        params: {
-          sort: input.sort ? this.convertSortSlugToKey(input.sort) : 'default',
-          genre: this.convertSlugsToNumericKeys('genres', input.genres),
-          // If this parameter be passed, filter will include all selected genres
-          genre_mode: input.include_all_genres ? 'and' : undefined, // Should be "and" or undefined
-          type: input.type,
-          country: this.convertSlugsToNumericKeys('countries', input.countries),
-          release: input.release,
-          quality: this.convertSlugsToStringKeys('qualities', input.qualities),
-          subtitle: input.with_subtitle ? 1 : 0, // Should be numeric boolean
-          page: input.page,
-        },
+        params,
       })
       .toPromise();
 
-    return parse(page.data)
-      .querySelectorAll('.content div.item')
-      .map((item) => this.homeService.processItem(item));
+    const root = parse(page.data);
+
+    return {
+      items: root
+        .querySelectorAll('.content div.item')
+        .map((item) => this.homeService.processItem(item)),
+      meta: this.getPaginationMeta(
+        root.querySelectorAll('.content .pagenav li'),
+      ),
+    };
+  }
+
+  private handlerSubtitleParam(input?: boolean) {
+    // Return type should be numeric boolean or undefined
+    if (input === undefined) return;
+    if (input === true) return 1;
+    return 0;
+  }
+
+  private getPaginationMeta(items: HTMLElement[]) {
+    const defaultMeta = {
+      currentPage: 1,
+
+      hasNextPage: false,
+      nextPage: null,
+
+      hasPreviousPage: false,
+      PreviousPage: null,
+    };
+
+    for (let i = 0; i < items.length; i++) {
+      // If item has "active" class
+      if (items[i].classList.contains('active')) {
+        defaultMeta.currentPage = parseInt(items[i].text);
+
+        // If the next item is "disabled" means it's the last page
+        if (!items[i + 1].classList.contains('disabled')) {
+          defaultMeta.hasNextPage = true;
+          defaultMeta.nextPage = parseInt(items[i + 1].text);
+        }
+
+        // If the previous item is numeric, then it means it has previous page
+        if (parseInt(items[i - 1].text)) {
+          defaultMeta.hasPreviousPage = true;
+          defaultMeta.PreviousPage = parseInt(items[i - 1].text);
+        }
+      }
+    }
+
+    return defaultMeta;
   }
 
   private convertSlugsToNumericKeys(
