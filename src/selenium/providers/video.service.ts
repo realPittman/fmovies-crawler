@@ -200,6 +200,23 @@ export class VideoService {
       // Sometimes background is the same as baseUri which means video doesn't have custom background!
       if (background === "${this.baseUri}") background = undefined;
 
+      // Handle related videos
+      var related_videos = [];
+      $(".watch-extra .bl-2 .content .item").each((key, item) => {
+        var rawType = $(item).find('.meta .type').text();
+        var type = rawType.trim().toLowerCase() === 'tv' ? '${VideoType.SERIES}' : '${VideoType.MOVIE}';
+
+        related_videos.push({
+          title: $(item).find('a').attr('title'),
+          quality: $(item).find('.quality').text().trim(),
+          type,
+          description: $(item).find('.meta').text().replace(rawType, '').trim(),
+          imdb: $(item).find('.imdb').text().trim(),
+          path: $(item).find('a').attr('href').replace('/film/', '').replace("${this.baseUri}", ''),
+          poster: $(item).find('img').attr('src').replace('-w100', '')
+        })
+      })
+
       return {
         name: $("#watch .watch-extra .info .title").text().trim(),
         background,
@@ -215,7 +232,7 @@ export class VideoService {
           cast: $(".watch-extra .bl-1 .info .meta div:nth-child(5) span:nth-child(2)").text().trim().replace('  less', ''),
           tags: $(".watch-extra .bl-1 .info .meta div:nth-child(6) span:nth-child(2)").text().trim().replace('  less', '')
         },
-        // TODO: return related videos
+        related_videos,
       }`);
 
     this.logger.debug('Fetching season details', path);
