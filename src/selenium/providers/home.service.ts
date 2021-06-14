@@ -110,13 +110,17 @@ export class HomeService {
       .querySelector('.meta')
       .structuredText.replace(type, '')
       .trim();
+
+    const path = item
+      .querySelector('a.poster')
+      .getAttribute('href')
+      .replace('/film/', '');
+
     return {
+      id: this.calculateIdFromPath(path),
       title: item.querySelector('.title').text.trim(),
       quality: item.querySelector('.quality').text,
-      path: item
-        .querySelector('a.poster')
-        .getAttribute('href')
-        .replace('/film/', ''),
+      path,
       poster: item
         .querySelector('img')
         .getAttribute('src')
@@ -125,5 +129,10 @@ export class HomeService {
       type: type === 'TV' ? VideoType.SERIES : VideoType.MOVIE,
       description,
     };
+  }
+
+  calculateIdFromPath(path: string) {
+    const pathParts = path.split('.');
+    return pathParts[pathParts.length - 1];
   }
 }

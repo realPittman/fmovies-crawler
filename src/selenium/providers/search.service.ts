@@ -52,7 +52,11 @@ export class SearchService {
       meta.shift();
       const type = _.last(meta) === 'min' ? VideoType.MOVIE : VideoType.SERIES;
 
+      const path = itemElements[i].getAttribute('href').replace('/film/', '');
+
       items.push({
+        id: this.homeService.calculateIdFromPath(path),
+        path,
         type,
         title: itemElements[i].querySelector('.title').text.trim(),
         poster: itemElements[i]
@@ -60,7 +64,6 @@ export class SearchService {
           .getAttribute('src')
           .trim()
           .replace('-w100', ''),
-        path: itemElements[i].getAttribute('href').replace('/film/', ''),
         imdb: parseFloat(
           itemElements[i].querySelector('.imdb').text.trim(),
         ).toFixed(2),

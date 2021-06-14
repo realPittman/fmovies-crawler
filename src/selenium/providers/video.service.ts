@@ -206,18 +206,24 @@ export class VideoService {
         var rawType = $(item).find('.meta .type').text();
         var type = rawType.trim().toLowerCase() === 'tv' ? '${VideoType.SERIES}' : '${VideoType.MOVIE}';
 
+        // Calculate id from path
+        const path = $(item).find('a').attr('href').replace('/film/', '').replace("${this.baseUri}", '');
+        const pathParts = path.split('.');
+
         related_videos.push({
+          id: pathParts[pathParts.length - 1],
+          path,
           title: $(item).find('a').attr('title'),
           quality: $(item).find('.quality').text().trim(),
           type,
-          description: $(item).find('.meta').text().replace(rawType, '').trim(),
+          details: $(item).find('.meta').text().replace(rawType, '').replace('  ', ' ').trim(),
           imdb: $(item).find('.imdb').text().trim(),
-          path: $(item).find('a').attr('href').replace('/film/', '').replace("${this.baseUri}", ''),
           poster: $(item).find('img').attr('src').replace('-w100', '')
         })
       })
 
       return {
+        id: $("#watch").attr("data-id"),
         name: $("#watch .watch-extra .info .title").text().trim(),
         background,
         poster: $("#watch .watch-extra .info .poster img").attr("src").replace('-w380', ''),
