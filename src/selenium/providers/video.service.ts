@@ -90,14 +90,15 @@ export class VideoService {
   // TODO: add response type
   private async fetchSeasonDetails(browser: ThenableWebDriver) {
     return browser.executeScript(`
-      var seasons = {};
-      var current = {};
+      var seasons = [];
+      var current_season = null;
+      var current_episode = {};
 
       $('#watch #episodes .bl-seasons ul li').each(
         (key, item) => {
           seasons[$(item).attr('data-id')] = {
-            number: parseInt($(item).attr('data-id')),
-            episodes: []
+            episodes: [],
+            season_number: parseInt($(item).attr('data-id')),
           }
         }
       )
@@ -108,13 +109,19 @@ export class VideoService {
         (key, value) => {
           if (parseInt($(value).attr("data-server")) === ${ServerID.MyCloud}) {
             var seasonId = $(value).attr("data-season")
+
             $(value).find('li a').each(
               (episodeKey, episodeValue) => {
                 var title = $(episodeValue).find('span').text().trim()
 
+                // Calculate video id from path
+                const path = $(episodeValue).attr('href').replace("${this.baseUri}", '').replace('/film/', '');
+                const pathParts = path.split('/');
+
                 var temp = {
-                  number: parseInt($(episodeValue).attr('data-kname').replace(seasonId + ':', '')),
-                  path: $(episodeValue).attr('href').replace("${this.baseUri}", '').replace('/film/', ''),
+                  episode_id: pathParts[pathParts.length - 1], // Episode ID is not video ID! they are different.
+                  path,
+                  episode_number: parseInt($(episodeValue).attr('data-kname').replace(seasonId + ':', '')),
 
                   // Sometimes the title is an empty string, in that case we'll return null
                   title: title !== "" ? title : null,
@@ -123,10 +130,8 @@ export class VideoService {
                 // If element has "active" class, means current video link is this episode
                 // So we'll mark this episode as "active" episode in another variable
                 if ($(episodeValue).hasClass('active')) {
-                  current = {
-                    number: parseInt(seasonId), // Current season number
-                    episode: temp
-                  }
+                  current_season = parseInt(seasonId) // Current season number
+                  current_episode = temp
                 }
 
                 seasons[seasonId].episodes.push(temp)
@@ -137,8 +142,9 @@ export class VideoService {
       )
 
       return {
-        current,
-        items: Object.values(seasons),
+        current_season,
+        current_episode,
+        seasons: Object.values(seasons),
       };
     `);
   }
@@ -242,8 +248,8 @@ export class VideoService {
       }`);
 
     this.logger.debug('Fetching season details', path);
-    const seasons =
-      type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : {};
+    const series =
+      type == VideoType.SERIES ? await this.fetchSeasonDetails(browser) : null;
 
     const iframeSelector = '#body #watch #player iframe';
 
@@ -268,7 +274,7 @@ export class VideoService {
     const response = {
       type,
       info,
-      seasons,
+      series,
       cdn: await this.getMCloudEmbedDetails(
         _.last(new URL(iframeSrc).pathname.split('/')),
       ),
