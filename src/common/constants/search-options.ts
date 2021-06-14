@@ -24,11 +24,18 @@ interface QualityInterface {
   key: string;
 }
 
+interface SortInterface {
+  name: string;
+  slug: string;
+  key: string;
+}
+
 export interface OptionsInterface {
   genres: GenreInterface[];
   types: TypeInterface[];
   countries: CountryInterface[];
   qualities: QualityInterface[];
+  sort: SortInterface[];
 }
 
 export enum GenreSlugs {
@@ -107,6 +114,14 @@ export enum QualitySlugs {
   CAM = 'cam',
 }
 
+export enum SortSlugs {
+  RECENTLY_ADDED = 'recently-added',
+  MOST_VIEWED = 'views',
+  NAME = 'title',
+  IMDB = 'imdb',
+  RELEASE_DATE = 'release',
+}
+
 export const searchOptions: OptionsInterface = {
   genres: [
     { name: 'Action', slug: GenreSlugs.ACTION, key: 25 },
@@ -148,44 +163,43 @@ export const searchOptions: OptionsInterface = {
     },
   ],
   countries: [
-    // TODO: write country names
-    { name: '', slug: CountrySlugs.UNITED_STATES, key: 2 },
-    { name: '', slug: CountrySlugs.UNITED_KINGDOM, key: 8 },
-    { name: '', slug: CountrySlugs.CANADA, key: 181861 },
-    { name: '', slug: CountrySlugs.FRANCE, key: 11 },
-    { name: '', slug: CountrySlugs.WEST_GERMANY, key: 181873 },
-    { name: '', slug: CountrySlugs.JAPAN, key: 36 },
-    { name: '', slug: CountrySlugs.AUSTRALIA, key: 181851 },
-    { name: '', slug: CountrySlugs.ITALY, key: 181857 },
-    { name: '', slug: CountrySlugs.INTERNATIONAL, key: 18 },
-    { name: '', slug: CountrySlugs.SPAIN, key: 181871 },
-    { name: '', slug: CountrySlugs.HONG_KONG, key: 2630 },
-    { name: '', slug: CountrySlugs.CHINA, key: 108 },
-    { name: '', slug: CountrySlugs.IRELAND, key: 181862 },
-    { name: '', slug: CountrySlugs.KOREA, key: 79 },
-    { name: '', slug: CountrySlugs.INDIA, key: 34 },
-    { name: '', slug: CountrySlugs.BELGIUM, key: 181849 },
-    { name: '', slug: CountrySlugs.DENMARK, key: 181855 },
-    { name: '', slug: CountrySlugs.SWEDEN, key: 181883 },
-    { name: '', slug: CountrySlugs.NEW_ZEALAND, key: 181847 },
-    { name: '', slug: CountrySlugs.NETHERLANDS, key: 181848 },
-    { name: '', slug: CountrySlugs.SOUTH_AFRICA, key: 181850 },
-    { name: '', slug: CountrySlugs.NORWAY, key: 181901 },
-    { name: '', slug: CountrySlugs.MEXICO, key: 181852 },
-    { name: '', slug: CountrySlugs.SWITZERLAND, key: 181869 },
-    { name: '', slug: CountrySlugs.AUSTRIA, key: 181882 },
-    { name: '', slug: CountrySlugs.CZECH_REPUBLIC, key: 181859 },
-    { name: '', slug: CountrySlugs.BRAZIL, key: 181867 },
-    { name: '', slug: CountrySlugs.RUSSIA, key: 181860 },
-    { name: '', slug: CountrySlugs.ARGENTINA, key: 181863 },
-    { name: '', slug: CountrySlugs.HUNGARY, key: 181876 },
-    { name: '', slug: CountrySlugs.POLAND, key: 181880 },
-    { name: '', slug: CountrySlugs.FINLAND, key: 181877 },
-    { name: '', slug: CountrySlugs.ISRAEL, key: 181887 },
-    { name: '', slug: CountrySlugs.ROMANIA, key: 181895 },
-    { name: '', slug: CountrySlugs.LUXEMBOURG, key: 181878 },
-    { name: '', slug: CountrySlugs.THAILAND, key: 94 },
-    { name: '', slug: CountrySlugs.TAIWAN, key: 1434 },
+    { name: 'United States', slug: CountrySlugs.UNITED_STATES, key: 2 },
+    { name: 'United Kingdom', slug: CountrySlugs.UNITED_KINGDOM, key: 8 },
+    { name: 'Canada', slug: CountrySlugs.CANADA, key: 181861 },
+    { name: 'France', slug: CountrySlugs.FRANCE, key: 11 },
+    { name: 'West Germany', slug: CountrySlugs.WEST_GERMANY, key: 181873 },
+    { name: 'Japan', slug: CountrySlugs.JAPAN, key: 36 },
+    { name: 'Australia', slug: CountrySlugs.AUSTRALIA, key: 181851 },
+    { name: 'Italy', slug: CountrySlugs.ITALY, key: 181857 },
+    { name: 'International', slug: CountrySlugs.INTERNATIONAL, key: 18 },
+    { name: 'Spain', slug: CountrySlugs.SPAIN, key: 181871 },
+    { name: 'Hong Kong', slug: CountrySlugs.HONG_KONG, key: 2630 },
+    { name: 'China', slug: CountrySlugs.CHINA, key: 108 },
+    { name: 'Ireland', slug: CountrySlugs.IRELAND, key: 181862 },
+    { name: 'Korea', slug: CountrySlugs.KOREA, key: 79 },
+    { name: 'India', slug: CountrySlugs.INDIA, key: 34 },
+    { name: 'Belgium', slug: CountrySlugs.BELGIUM, key: 181849 },
+    { name: 'Denmark', slug: CountrySlugs.DENMARK, key: 181855 },
+    { name: 'Sweden', slug: CountrySlugs.SWEDEN, key: 181883 },
+    { name: 'New Zealand', slug: CountrySlugs.NEW_ZEALAND, key: 181847 },
+    { name: 'Netherlands', slug: CountrySlugs.NETHERLANDS, key: 181848 },
+    { name: 'South Africa', slug: CountrySlugs.SOUTH_AFRICA, key: 181850 },
+    { name: 'Norway', slug: CountrySlugs.NORWAY, key: 181901 },
+    { name: 'Mexico', slug: CountrySlugs.MEXICO, key: 181852 },
+    { name: 'Switzerland', slug: CountrySlugs.SWITZERLAND, key: 181869 },
+    { name: 'Austria', slug: CountrySlugs.AUSTRIA, key: 181882 },
+    { name: 'Czech Republic', slug: CountrySlugs.CZECH_REPUBLIC, key: 181859 },
+    { name: 'Brazil', slug: CountrySlugs.BRAZIL, key: 181867 },
+    { name: 'Russia', slug: CountrySlugs.RUSSIA, key: 181860 },
+    { name: 'Argentina', slug: CountrySlugs.ARGENTINA, key: 181863 },
+    { name: 'Hungary', slug: CountrySlugs.HUNGARY, key: 181876 },
+    { name: 'Poland', slug: CountrySlugs.POLAND, key: 181880 },
+    { name: 'Finland', slug: CountrySlugs.FINLAND, key: 181877 },
+    { name: 'Israel', slug: CountrySlugs.ISRAEL, key: 181887 },
+    { name: 'Romania', slug: CountrySlugs.ROMANIA, key: 181895 },
+    { name: 'Luxembourg', slug: CountrySlugs.LUXEMBOURG, key: 181878 },
+    { name: 'Thailand', slug: CountrySlugs.THAILAND, key: 94 },
+    { name: 'Taiwan', slug: CountrySlugs.TAIWAN, key: 1434 },
   ],
   qualities: [
     { name: 'HD', slug: QualitySlugs.HD, key: 'HD' },
@@ -193,5 +207,16 @@ export const searchOptions: OptionsInterface = {
     { name: 'SD', slug: QualitySlugs.SD, key: 'SD' },
     { name: 'TS', slug: QualitySlugs.TS, key: 'TS' },
     { name: 'CAM', slug: QualitySlugs.CAM, key: 'CAM' },
+  ],
+  sort: [
+    {
+      name: 'Recently added',
+      slug: SortSlugs.RECENTLY_ADDED,
+      key: 'post_date:desc',
+    },
+    { name: 'Most viewed', slug: SortSlugs.MOST_VIEWED, key: 'views:desc' },
+    { name: 'Name', slug: SortSlugs.NAME, key: 'title:asc' },
+    { name: 'IMDB', slug: SortSlugs.IMDB, key: 'imdb:desc' },
+    { name: 'Release date', slug: SortSlugs.RELEASE_DATE, key: 'year:desc' },
   ],
 };
