@@ -77,14 +77,14 @@ export class SearchService {
       .get<string>('filter', {
         baseURL: this.baseUri,
         params: {
-          sort: 'default', // TODO: handle sort param
-          genre: this.convertSlugsToKeys('genres', input.genres),
+          sort: input.sort ? this.convertSortSlugToKey(input.sort) : 'default',
+          genre: this.convertSlugsToNumericKeys('genres', input.genres),
           // If this parameter be passed, filter will include all selected genres
           genre_mode: input.include_all_genres ? 'and' : undefined, // Should be "and" or undefined
           type: input.type,
-          country: this.convertSlugsToKeys('countries', input.countries),
+          country: this.convertSlugsToNumericKeys('countries', input.countries),
           release: input.release,
-          quality: this.convertQualitiesSlugsToKeys(input.qualities),
+          quality: this.convertSlugsToStringKeys('qualities', input.qualities),
           subtitle: input.with_subtitle ? 1 : 0, // Should be numeric boolean
           page: input.page,
         },
@@ -96,7 +96,10 @@ export class SearchService {
       .map((item) => this.homeService.processItem(item));
   }
 
-  private convertSlugsToKeys(type: 'genres' | 'countries', inputs?: string[]) {
+  private convertSlugsToNumericKeys(
+    type: 'genres' | 'countries',
+    inputs?: string[],
+  ) {
     if (!inputs) return;
     if (typeof inputs === 'string')
       throw new BadRequestException(
@@ -109,17 +112,26 @@ export class SearchService {
     );
   }
 
-  private convertQualitiesSlugsToKeys(inputs?: string[]) {
+  private convertSortSlugToKey(slug: string) {
+    if (!slug) return;
+    if (typeof slug !== 'string')
+      throw new BadRequestException(
+        `Parameter "sort" should be type of string.`,
+      );
+
+    return _.first(searchOptions.sort.filter((temp) => temp.slug === slug)).key;
+  }
+
+  private convertSlugsToStringKeys(type: 'qualities', inputs?: string[]) {
     if (!inputs) return;
     if (typeof inputs === 'string')
       throw new BadRequestException(
-        `Parameter "qualities" should be array of strings (slugs).`,
+        `Parameter "${type}" should be array of strings (slugs).`,
       );
 
     return inputs.map(
       (input) =>
-        _.first(searchOptions.qualities.filter((temp) => temp.slug === input))
-          .key,
+        _.first(searchOptions[type].filter((temp) => temp.slug === input)).key,
     );
   }
 

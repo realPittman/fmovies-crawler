@@ -9,6 +9,7 @@ import {
   CountrySlugs,
   GenreSlugs,
   QualitySlugs,
+  SortSlugs,
 } from '../../common/constants/search-options';
 import { VideoType } from '../providers/video.service';
 
@@ -44,6 +45,10 @@ export class AdvancedSearchDto {
   @IsNumber({ allowNaN: false }, { each: true })
   @IsPositive({ each: true })
   release: number[];
+
+  @IsOptional()
+  @IsEnum(SortSlugs, { message: 'Invalid sort slug.' })
+  sort: SortSlugs;
 
   @IsOptional()
   @IsNumber()
