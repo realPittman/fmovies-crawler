@@ -30,6 +30,18 @@ services:
     networks:
       - selenium-grid
 
+  redis:
+    image: redis:6.0.10
+    container_name: redis
+    ports:
+      - '6379:6379'
+    expose:
+      - '6379'
+    volumes:
+      - redis-data:/var/lib/redis
+    networks:
+      - redis
+
   app:
     build: .
     depends_on:
@@ -39,6 +51,7 @@ services:
       - '${PORT:-3000}:${PORT:-3000}'
     networks:
       - selenium-grid
+      - redis
     environment:
       SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
       # Tells Fastify to listen on "0.0.0.0"
@@ -48,3 +61,7 @@ services:
 
 networks:
   selenium-grid:
+  redis:
+
+volumes:
+  redis-data:
