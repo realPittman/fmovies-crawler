@@ -189,6 +189,10 @@ export class SearchService {
   }
 
   options() {
+    ['genres', 'types', 'countries', 'qualities', 'sort'].forEach((option) => {
+      searchOptions[option].forEach((v: any) => delete v.key);
+    });
+
     return searchOptions;
   }
 }
