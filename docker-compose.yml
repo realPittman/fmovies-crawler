@@ -41,6 +41,17 @@ services:
       - redis-data:/var/lib/redis
     networks:
       - redis
+  
+  openresty:
+    depends_on:
+      - redis
+    image: openresty/openresty
+    container_name: openresty
+    ports:
+      - "8080:80"
+    volumes:
+      - "nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "nginx/scripts:/scripts"
 
   app:
     build: .
