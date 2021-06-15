@@ -7,6 +7,7 @@ import { SearchService } from './providers/search.service';
 import { SearchController } from './controllers/search.controller';
 import { HomeController } from './controllers/home.controller';
 import { HomeService } from './providers/home.service';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -14,6 +15,10 @@ import { HomeService } from './providers/home.service';
     CacheModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
+        store: redisStore,
+        // TODO: load from config
+        host: 'redis',
+        port: 6379,
         ttl: configService.get('cache.ttl'),
         max: configService.get('cache.max'),
       }),
