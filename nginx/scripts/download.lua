@@ -1,4 +1,5 @@
 local ID = ngx.var.FILE_ID
+json = require "json"
 
 if ID == '' then
     ngx.log(ngx.ERR, "no ID found")
@@ -28,4 +29,4 @@ if target == ngx.null then
     return ngx.exit(400)
 end
 
-ngx.var.TARGET_URL = target
+ngx.var.TARGET_URL = json.decode(target)
