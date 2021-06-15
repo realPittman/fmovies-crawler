@@ -89,8 +89,7 @@ export class VideoService {
 
       const uuid = uuidv4();
       await this.cacheManager.set(uuid, urlParts.join('/'), {
-        // TODO: load TTL from env
-        ttl: 500,
+        ttl: this.configService.get('cache.uuidTTL'),
       });
       return (
         this.configService.get('baseURI') + '/stream/' + uuid + '/' + lastPart

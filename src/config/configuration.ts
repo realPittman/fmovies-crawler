@@ -17,5 +17,6 @@ export default () => ({
   cache: {
     ttl: parseInt(process.env.CACHE_TLL) || 5,
     max: parseInt(process.env.CACHE_MAX_ITEMS) || 10,
+    uuidTTL: parseInt(process.env.CACHE_STREAM_UUID_TTL) || 172800,
   },
 });
