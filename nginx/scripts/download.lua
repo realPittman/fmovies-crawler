@@ -1,4 +1,5 @@
 local ID = ngx.var.FILE_ID
+
 if ID == '' then
     ngx.log(ngx.ERR, "no ID found")
     return ngx.exit(400)
@@ -10,7 +11,7 @@ red:set_timeout(1000) -- 1 second
 
 local options_table = {}
 options_table["pool"] = "redis"
-local ok, err = red:connect("redis", 6379, options_table)
+local ok, err = red:connect(os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"), options_table)
 if not ok then
     ngx.log(ngx.ERR, "failed to connect to redis: ", err)
     return ngx.exit(500)
