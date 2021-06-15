@@ -15,10 +15,11 @@ import * as redisStore from 'cache-manager-redis-store';
     CacheModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
+        // Redis driver
         store: redisStore,
-        // TODO: load from config
-        host: 'redis',
-        port: 6379,
+        host: configService.get('redis.host'),
+        port: configService.get<number>('redis.port'),
+
         ttl: configService.get('cache.ttl'),
         max: configService.get('cache.max'),
       }),
