@@ -1,12 +1,16 @@
 import {
+  CACHE_MANAGER,
   HttpService,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Cache } from 'cache-manager';
 import * as _ from 'lodash';
 import { By, ThenableWebDriver, until } from 'selenium-webdriver';
+import { v4 as uuidv4 } from 'uuid';
 import { MCloudResponse } from '../types/response.types';
 import { SeleniumService } from './selenium.service';
 
@@ -31,6 +35,9 @@ export class VideoService {
     private readonly seleniumService: SeleniumService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
+
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
   ) {
     this.baseUri = this.configService.get('fmovies.baseUri');
   }
@@ -66,6 +73,29 @@ export class VideoService {
       throw new InternalServerErrorException(
         'Video maybe got deleted by the owner or was removed due a copyright violation',
         'Could not fetch CDN details from MGCloud.',
+      );
+    }
+  }
+
+  // Replacing stream url with UUID, cause it's limited to server IP only
+  // By using UUID we can reverse proxy the Stream URL to bypass this restriction :)
+  private async replaceStreamURLWithUUID(url: string) {
+    this.logger.debug('Replacing the streaming URL with UUID', url);
+    try {
+      // Remove last part of the URL (which is "list.m3u8")
+      const urlParts = url.split('/');
+      delete urlParts[urlParts.length - 1];
+
+      const uuid = uuidv4();
+      await this.cacheManager.set(uuid, urlParts.join('/'), {
+        // TODO: load TTL from env
+        ttl: 500,
+      });
+      return uuid;
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Could not generate stream UUID',
+        err,
       );
     }
   }
@@ -271,13 +301,16 @@ export class VideoService {
     await browser.quit();
 
     this.logger.debug('Fetching MGCloud embed details', path);
+    const cdn = await this.getMCloudEmbedDetails(
+      _.last(new URL(iframeSrc).pathname.split('/')),
+    );
+    cdn.stream = await this.replaceStreamURLWithUUID(cdn.stream);
+
     const response = {
       type,
       info,
       series,
-      cdn: await this.getMCloudEmbedDetails(
-        _.last(new URL(iframeSrc).pathname.split('/')),
-      ),
+      cdn,
     };
 
     return response;
