@@ -42,16 +42,17 @@ services:
     depends_on:
       - hub
       - chrome
-    # TODO: Remove ports and map it to openresty service
-    ports:
-      - '${PORT:-3000}:${PORT:-3000}'
     networks:
+      - nest
       - selenium-grid
       - redis
     environment:
       SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
       # Tells Fastify to listen on "0.0.0.0"
       IS_RUNNING_IN_DOCKER: 'yes'
+      PORT: 3000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     env_file:
       - .env
 
@@ -62,18 +63,19 @@ services:
       - redis
       - app
     ports:
-      # TODO: load from env
-      - '8080:80'
-    volumes:
-      - './nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf'
-      - './nginx/scripts:/scripts'
+      - '${PORT-3000}:8080'
     networks:
+      - nest
       - redis
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
+    volumes:
+      - './nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf'
+      - './nginx/scripts:/scripts'
 
 networks:
+  nest:
   selenium-grid:
   redis:
 
