@@ -23,7 +23,7 @@ services:
       NODE_MAX_INSTANCES: 8
     shm_size: 2g
     ports:
-      # VNC viewer port
+      # VNC Viewer port
       - '7900:5900'
     depends_on:
       - hub
@@ -32,11 +32,6 @@ services:
 
   redis:
     image: redis:6.0.10
-    # container_name: redis
-    # ports:
-    #   - '6379:6379'
-    # expose:
-    #   - '6379'
     volumes:
       - redis-data:/var/lib/redis
     networks:
@@ -47,7 +42,7 @@ services:
     depends_on:
       - hub
       - chrome
-    # Remove ports and map it to openresty service
+    # TODO: Remove ports and map it to openresty service
     ports:
       - '${PORT:-3000}:${PORT:-3000}'
     networks:
@@ -63,7 +58,6 @@ services:
   # API Gateway
   openresty:
     image: openresty/openresty:1.19.3.2-alpine
-    # container_name: openresty
     depends_on:
       - redis
       - app
