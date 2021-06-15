@@ -775,7 +775,15 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/cache-manager@^3.4.0":
+"@types/cache-manager-redis-store@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/cache-manager-redis-store/-/cache-manager-redis-store-2.0.0.tgz#81bbc12efb66898e5484f81779850eef43f599be"
+  integrity sha512-6svzdqXFcjsBPtTjkrLinlcB/XsIY4kkVh7KgFYjJHqw0usg2nALXN9YNe7q2r7RErymoCAvnnlNqjwTd3k/sQ==
+  dependencies:
+    "@types/cache-manager" "*"
+    "@types/redis" "*"
+
+"@types/cache-manager@*", "@types/cache-manager@^3.4.0":
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/@types/cache-manager/-/cache-manager-3.4.0.tgz#414136ea3807a8cd071b8f20370c5df5dbffd382"
   integrity sha512-XVbn2HS+O+Mk2SKRCjr01/8oD5p2Tv1fxxdBqJ0+Cl+UBNiz0WVY5rusHpMGx+qF6Vc2pnRwPVwSKbGaDApCpw==
@@ -932,6 +940,13 @@
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.3.tgz#7ee330ba7caafb98090bece86a5ee44115904c2c"
   integrity sha512-ewFXqrQHlFsgc09MK5jP5iR7vumV/BYayNC6PgJO2LPe8vrnNFyjQjSppfEngITi0qvfKtzFvgKymGheFM9UOA==
+
+"@types/redis@*":
+  version "2.8.29"
+  resolved "https://registry.yarnpkg.com/@types/redis/-/redis-2.8.29.tgz#f272dba985156e599e2523afb4f5f7e7586b56b5"
+  integrity sha512-/pjQ9lwnL/t1bEfRHQFEJB3kHCR65tpB19NEWmbqcgGgqrfeGo/9b4tUtHbClxQoy3+g6Esx2QRtV7fk7kBPYg==
+  dependencies:
+    "@types/node" "*"
 
 "@types/selenium-webdriver@^4.0.13":
   version "4.0.13"
@@ -1617,6 +1632,13 @@ cache-base@^1.0.1:
     union-value "^1.0.0"
     unset-value "^1.0.0"
 
+cache-manager-redis-store@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/cache-manager-redis-store/-/cache-manager-redis-store-2.0.0.tgz#25db93656c4ab7b3591bd6ca370e188ef90754c9"
+  integrity sha512-bWLWlUg6nCYHiJLCCYxY2MgvwvKnvlWwrbuynrzpjEIhfArD2GC9LtutIHFEPeyGVQN6C+WEw+P3r+BFBwhswg==
+  dependencies:
+    redis "^3.0.2"
+
 cache-manager@^3.4.4:
   version "3.4.4"
   resolved "https://registry.yarnpkg.com/cache-manager/-/cache-manager-3.4.4.tgz#c69814763d3f3031395ae0d3a9a9296a91602226"
@@ -2084,6 +2106,11 @@ delayed-stream@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
   integrity sha1-3zrhmayt+31ECqrgsp4icrJOxhk=
+
+denque@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/denque/-/denque-1.5.0.tgz#773de0686ff2d8ec2ff92914316a47b73b1c73de"
+  integrity sha512-CYiCSgIF1p6EUByQPlGkKnP1M9g0ZV3qMIrqMqZqdwazygIA/YP2vrbcyl1h/WppKJTdl1F85cXIle+394iDAQ==
 
 detect-newline@^3.0.0:
   version "3.1.0"
@@ -4775,6 +4802,33 @@ rechoir@^0.6.2:
   integrity sha1-hSBLVNuoLVdC4oyWdW70OvUOM4Q=
   dependencies:
     resolve "^1.1.6"
+
+redis-commands@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.7.0.tgz#15a6fea2d58281e27b1cd1acfb4b293e278c3a89"
+  integrity sha512-nJWqw3bTFy21hX/CPKHth6sfhZbdiHP6bTawSgQBlKOVRG7EZkfHbbHwQJnrE4vsQf0CMNE+3gJ4Fmm16vdVlQ==
+
+redis-errors@^1.0.0, redis-errors@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/redis-errors/-/redis-errors-1.2.0.tgz#eb62d2adb15e4eaf4610c04afe1529384250abad"
+  integrity sha1-62LSrbFeTq9GEMBK/hUpOEJQq60=
+
+redis-parser@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/redis-parser/-/redis-parser-3.0.0.tgz#b66d828cdcafe6b4b8a428a7def4c6bcac31c8b4"
+  integrity sha1-tm2CjNyv5rS4pCin3vTGvKwxyLQ=
+  dependencies:
+    redis-errors "^1.0.0"
+
+redis@^3.0.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/redis/-/redis-3.1.2.tgz#766851117e80653d23e0ed536254677ab647638c"
+  integrity sha512-grn5KoZLr/qrRQVwoSkmzdbw6pwF+/rwODtrOr6vuBRiR/f3rjSTGupbF90Zpqm2oenix8Do6RV7pYEkGwlKkw==
+  dependencies:
+    denque "^1.5.0"
+    redis-commands "^1.7.0"
+    redis-errors "^1.2.0"
+    redis-parser "^3.0.0"
 
 reflect-metadata@^0.1.13:
   version "0.1.13"
