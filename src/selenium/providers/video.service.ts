@@ -84,6 +84,7 @@ export class VideoService {
     try {
       // Remove last part of the URL (which is "list.m3u8")
       const urlParts = url.split('/');
+      const lastPart = urlParts[urlParts.length - 1];
       delete urlParts[urlParts.length - 1];
 
       const uuid = uuidv4();
@@ -91,7 +92,9 @@ export class VideoService {
         // TODO: load TTL from env
         ttl: 500,
       });
-      return uuid;
+      return (
+        this.configService.get('baseURI') + '/stream/' + uuid + '/' + lastPart
+      );
     } catch (err) {
       throw new InternalServerErrorException(
         'Could not generate stream UUID',

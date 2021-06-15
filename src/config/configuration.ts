@@ -1,4 +1,7 @@
+if (!process.env.BASE_URI) throw new Error('"BASE_URI" env var should be set.');
+
 export default () => ({
+  baseURI: process.env.BASE_URI,
   isDocker: process.env.IS_RUNNING_IN_DOCKER ? true : false,
   port: parseInt(process.env.PORT) || 3000,
   fmovies: {
