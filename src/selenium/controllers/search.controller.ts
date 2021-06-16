@@ -7,10 +7,12 @@ import {
   Query,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AdvancedSearchDto } from '../dto/advanced-search.dto';
 import { SimpleSearchDto } from '../dto/simple-search.dto';
 import { SearchService } from '../providers/search.service';
 
+@ApiTags('Search')
 @Controller('search')
 @UseInterceptors(CacheInterceptor)
 export class SearchController {

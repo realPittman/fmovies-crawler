@@ -27,7 +27,7 @@ import * as redisStore from 'cache-manager-redis-store';
     }),
   ],
   providers: [SeleniumService, VideoService, SearchService, HomeService],
-  controllers: [VideoController, SearchController, HomeController],
+  controllers: [HomeController, SearchController, VideoController],
   exports: [SeleniumService],
 })
 export class SeleniumModule {}
