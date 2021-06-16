@@ -16,9 +16,9 @@ import { SearchService } from '../providers/search.service';
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
-  @Get('options')
+  @Get('available-options')
   options() {
-    return this.searchService.options();
+    return this.searchService.availableOptions();
   }
 
   @Get('simple')
