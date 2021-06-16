@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsDefined, IsString } from 'class-validator';
 
 export class VideoDto {
   @IsString()
-  @IsNotEmpty()
-  path: string;
+  @IsDefined()
+  id: string;
 }

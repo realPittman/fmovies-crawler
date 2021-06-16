@@ -9,6 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import * as _ from 'lodash';
+import { parse } from 'node-html-parser';
 import { By, ThenableWebDriver, until } from 'selenium-webdriver';
 import { v4 as uuidv4 } from 'uuid';
 import { MCloudResponse } from '../types/response.types';
@@ -316,5 +317,42 @@ export class VideoService {
     };
 
     return response;
+  }
+
+  async findById(id: string) {
+    const response = await this.httpService
+      .get<string>(`ajax/film/tooltip/${id}`, {
+        baseURL: this.baseUri,
+      })
+      .toPromise()
+      .catch((err) => {
+        throw new InternalServerErrorException('Invalid video id.', err);
+      });
+
+    const root = parse(response.data);
+
+    const quality = root.querySelector('.meta .quality').text.trim();
+    const imdb = root.querySelector('.meta .imdb').text.trim();
+    const details = root
+      .querySelector('.meta')
+      .structuredText.replace(imdb, '')
+      .replace(quality, '')
+      .trim();
+
+    const path = root
+      .querySelector('.actions .watchnow')
+      .getAttribute('href')
+      .replace('/film/', '');
+    const pathParts = path.split('.');
+
+    return {
+      id: pathParts[pathParts.length - 1],
+      path,
+      title: root.querySelector('.title').text,
+      imdb: imdb !== '?' ? imdb : null,
+      quality,
+      details,
+      description: root.querySelector('.desc').text.trim(),
+    };
   }
 }
