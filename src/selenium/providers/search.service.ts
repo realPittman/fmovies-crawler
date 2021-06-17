@@ -1,14 +1,9 @@
-import {
-  BadRequestException,
-  HttpService,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import * as _ from 'lodash';
 import { HTMLElement, parse } from 'node-html-parser';
 import { searchOptions } from '../../common/constants/search-options';
 import { VideoHelper } from '../../common/helpers/video-helper';
+import { RequestService } from '../../request/request.service';
 import { AdvancedSearchDto } from '../dto/advanced-search.dto';
 import { VideoType } from './video.service';
 
@@ -16,26 +11,12 @@ import { VideoType } from './video.service';
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
 
-  private readonly baseUri: string;
-
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
-  ) {
-    this.baseUri = this.configService.get('fmovies.baseUri');
-  }
+  constructor(private readonly requestService: RequestService) {}
 
   async simple(keyword: string) {
     this.logger.debug(`Got the keyword to simple search "${keyword}"`);
 
-    const response = await this.httpService
-      .get<{ html: string }>('ajax/film/search', {
-        baseURL: this.baseUri,
-        params: {
-          keyword,
-        },
-      })
-      .toPromise();
+    const response = await this.requestService.search(keyword);
 
     const items = [];
 
@@ -90,16 +71,7 @@ export class SearchService {
       page: input.page,
     };
 
-    this.logger.debug(
-      `Advanced searching with these params '${JSON.stringify(params)}'`,
-    );
-
-    const page = await this.httpService
-      .get<string>('filter', {
-        baseURL: this.baseUri,
-        params,
-      })
-      .toPromise();
+    const page = await this.requestService.filter(params);
 
     const root = parse(page.data);
 
@@ -190,6 +162,7 @@ export class SearchService {
   }
 
   availableOptions() {
+    // Remove "key" field from options constant
     ['genres', 'types', 'countries', 'qualities', 'sort'].forEach((option) => {
       searchOptions[option].forEach((v: any) => delete v.key);
     });

@@ -1,6 +1,5 @@
 import {
   CACHE_MANAGER,
-  HttpService,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -12,7 +11,8 @@ import * as _ from 'lodash';
 import { parse } from 'node-html-parser';
 import { By, ThenableWebDriver, until } from 'selenium-webdriver';
 import { v4 as uuidv4 } from 'uuid';
-import { MCloudResponse } from '../types/response.types';
+import { VideoHelper } from '../../common/helpers/video-helper';
+import { RequestService } from '../../request/request.service';
 import { SeleniumService } from './selenium.service';
 
 export enum VideoType {
@@ -35,47 +35,12 @@ export class VideoService {
   constructor(
     private readonly seleniumService: SeleniumService,
     private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
+    private readonly requestService: RequestService,
 
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
   ) {
     this.baseUri = this.configService.get('fmovies.baseUri');
-  }
-
-  private async getMCloudEmbedDetails(videoCode: string) {
-    try {
-      const response = await this.httpService
-        .get<MCloudResponse>(`https://mcloud.to/info/${videoCode}`, {
-          headers: {
-            // This header is required, otherwise MCloud will return an empty response
-            referer: 'https://mcloud.to/',
-          },
-        })
-        .toPromise();
-
-      const cdn = {
-        download: '',
-        stream: '',
-      };
-
-      for (let i = 0; i < response.data.media.sources.length; i++) {
-        if (response.data.media.sources[i].label) {
-          cdn.download = response.data.media.sources[i].file;
-        } else {
-          cdn.stream = response.data.media.sources[i].file;
-        }
-      }
-
-      this.logger.debug('Returning MGCloud embed details');
-      return cdn;
-    } catch (err) {
-      this.logger.error(err);
-      throw new InternalServerErrorException(
-        'Video maybe got deleted by the owner or was removed due a copyright violation',
-        'Could not fetch CDN details from MGCloud.',
-      );
-    }
   }
 
   // Replacing stream url with UUID, cause it's limited to server IP only
@@ -303,8 +268,8 @@ export class VideoService {
 
     await browser.quit();
 
-    this.logger.debug('Fetching MGCloud embed details', path);
-    const cdn = await this.getMCloudEmbedDetails(
+    this.logger.debug('Fetching MCloud embed details', path);
+    const cdn = await this.requestService.mCloudVideoInfo(
       _.last(new URL(iframeSrc).pathname.split('/')),
     );
     cdn.stream = await this.replaceStreamURLWithUUID(cdn.stream);
@@ -319,15 +284,8 @@ export class VideoService {
     return response;
   }
 
-  async findById(id: string) {
-    const response = await this.httpService
-      .get<string>(`ajax/film/tooltip/${id}`, {
-        baseURL: this.baseUri,
-      })
-      .toPromise()
-      .catch((err) => {
-        throw new InternalServerErrorException('Invalid video id.', err);
-      });
+  async findById(videoId: string) {
+    const response = await this.requestService.findVideoById(videoId);
 
     const root = parse(response.data);
 
@@ -339,14 +297,12 @@ export class VideoService {
       .replace(quality, '')
       .trim();
 
-    const path = root
-      .querySelector('.actions .watchnow')
-      .getAttribute('href')
-      .replace('/film/', '');
-    const pathParts = path.split('.');
+    const { id, path } = VideoHelper.processPathAndId(
+      root.querySelector('.actions .watchnow').getAttribute('href'),
+    );
 
     return {
-      id: pathParts[pathParts.length - 1],
+      id,
       path,
       title: root.querySelector('.title').text,
       imdb: imdb !== '?' ? imdb : null,

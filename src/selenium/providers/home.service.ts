@@ -8,7 +8,7 @@ export class HomeService {
   constructor(private readonly requestService: RequestService) {}
 
   async homepage() {
-    const page = await this.requestService.getHomePage();
+    const page = await this.requestService.home();
     const root = parse(page.data);
 
     return {
