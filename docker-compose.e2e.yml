@@ -1,13 +1,31 @@
 version: '3.8'
 
 services:
+  chrome:
+    image: selenium/standalone-chrome:91.0
+    hostname: chrome
+    ports:
+      - '5900:5900'
+      - '4444:4444'
+    privileged: true
+    shm_size: 2g
+
+  redis:
+    image: redis:6.0.10
+
   app:
     build:
       context: ./
       dockerfile: Dockerfile.dev
     environment:
       NODE_ENV: test
-    command: yarn run test:e2e --detectOpenHandles
+      SELENIUM_REMOTE_URL: http://chrome:4444/wd/hub
+      IS_RUNNING_IN_DOCKER: 'yes'
+      PORT: 3000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      BASE_URI: http://localhost:3000
+    command: yarn run test:e2e --forceExit
     volumes:
       - ./src:/app/src:ro
       - ./test:/app/test:ro

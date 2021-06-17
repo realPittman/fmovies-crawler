@@ -8,7 +8,7 @@ import {
 describe('AppController (e2e)', () => {
   let app: NestFastifyApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -16,19 +16,23 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
+
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
   });
 
   it(`/ GET`, async () => {
-    const result = await app.inject({
-      method: 'GET',
-      url: '/',
-    });
-    expect(result.statusCode).toEqual(404);
+    app
+      .inject({
+        method: 'GET',
+        url: '/',
+      })
+      .then((result) => {
+        expect(result.statusCode).toEqual(404);
+      });
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
   });
 });
