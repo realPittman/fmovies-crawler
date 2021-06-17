@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import 'chromedriver';
@@ -12,21 +13,20 @@ const caps = new Capabilities();
 caps.setPageLoadStrategy('eager');
 
 @Injectable()
-export class SeleniumService {
+export class SeleniumService implements OnModuleInit {
   private readonly logger = new Logger(SeleniumService.name);
+
+  private options = new Options();
 
   constructor(private readonly configService: ConfigService) {}
 
-  createBrowser(): ThenableWebDriver {
-    this.logger.debug('Creating browser');
-    const options = new Options();
-
+  onModuleInit() {
     if (this.configService.get('selenium.headless')) {
-      options.headless();
+      this.options.headless();
     }
 
     // Disable notification prompts
-    options.addArguments(
+    this.options.addArguments(
       '--disable-notifications',
       '--enable-heavy-ad-intervention',
       '--enable-parallel-downloading',
@@ -39,21 +39,25 @@ export class SeleniumService {
     /**
      * Disable all images (performance boost)
      */
-    options.setUserPreferences({
+    this.options.setUserPreferences({
       'profile.default_content_settings.images': 2,
       'profile.managed_default_content_settings.images': 2,
     });
+  }
 
+  createBrowser(): ThenableWebDriver {
     try {
+      this.logger.debug('Creating browser');
       return new Builder()
         .withCapabilities(caps)
         .forBrowser('chrome')
-        .setChromeOptions(options)
+        .setChromeOptions(this.options)
         .build();
     } catch (err) {
       this.logger.error('Could not create browser instance.', err);
       throw new InternalServerErrorException(
         'Could not create browser instance.',
+        err,
       );
     }
   }
