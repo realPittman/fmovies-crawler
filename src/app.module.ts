@@ -4,6 +4,7 @@ import configuration from './config/configuration';
 import { SeleniumModule } from './selenium/selenium.module';
 import { RequestModule } from './request/request.module';
 import { SearchModule } from './search/search.module';
+import { CacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { SearchModule } from './search/search.module';
       cache: true,
       isGlobal: true,
     }),
+    CacheModule,
     SeleniumModule,
     RequestModule,
     SearchModule,

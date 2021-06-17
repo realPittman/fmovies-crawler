@@ -13,7 +13,7 @@ import {
   QualitySlugs,
   SortSlugs,
 } from '../../common/constants/search-options';
-import { VideoType } from '../providers/video.service';
+import { VideoType } from '../../selenium/providers/video.service';
 
 export class AdvancedSearchDto {
   @IsOptional()
