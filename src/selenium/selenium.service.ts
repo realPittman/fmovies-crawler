@@ -9,18 +9,17 @@ import 'chromedriver';
 import { Builder, Capabilities, ThenableWebDriver } from 'selenium-webdriver';
 import { Options } from 'selenium-webdriver/chrome';
 
-const caps = new Capabilities();
-caps.setPageLoadStrategy('eager');
-
 @Injectable()
 export class SeleniumService implements OnModuleInit {
   private readonly logger = new Logger(SeleniumService.name);
-
+  private caps = new Capabilities();
   private options = new Options();
 
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
+    this.caps.setPageLoadStrategy('eager');
+
     if (this.configService.get('selenium.headless')) {
       this.options.headless();
     }
@@ -48,13 +47,18 @@ export class SeleniumService implements OnModuleInit {
   createBrowser(): ThenableWebDriver {
     try {
       this.logger.debug('Creating browser');
-      return new Builder()
-        .withCapabilities(caps)
+
+      const browser = new Builder()
+        .withCapabilities(this.caps)
         .forBrowser('chrome')
         .setChromeOptions(this.options)
         .build();
+
+      this.logger.debug('Successfully created browser');
+      return browser;
     } catch (err) {
       this.logger.error('Could not create browser instance.', err);
+
       throw new InternalServerErrorException(
         'Could not create browser instance.',
         err,
