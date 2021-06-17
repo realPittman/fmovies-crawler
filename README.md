@@ -21,6 +21,7 @@
     -   [Debugging with VNC Viewer](#debugging-with-vnc-viewer)
 -   [Installing locally](#installing-locally)
 -   [Running locally](#running-locally)
+-   [Documentation](#documentation)
 -   [Useful resources](#useful-resources)
 
 ## Features
@@ -106,6 +107,10 @@ yarn start:dev
 # Production mode
 yarn start:prod
 ```
+
+## Documentation
+
+After running the application, head to http://localhost:3000/docs for the API description.
 
 ## Useful resources
 
