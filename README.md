@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <img alt="License" src="https://img.shields.io/github/license/scrip7/fmovies-crawler?color=blue">
-  <a href="https://github.com/Scrip7/fmovies-crawler/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" /></a>
+  <a href="https://github.com/Scrip7/fmovies-crawler/blob/main/LICENSE" target="_blank"><img alt="License" src="https://img.shields.io/github/license/scrip7/fmovies-crawler?color=blue"></a>
+  <a href="https://github.com/Scrip7/fmovies-crawler/pulls" target="_blank"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" /></a>
 </p>
 
 ## Table of contents
