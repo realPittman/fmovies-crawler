@@ -156,13 +156,23 @@ export class SearchService {
 
   private convertSlugsToNumericKeys(
     type: 'genres' | 'countries',
-    inputs?: string[],
+    inputs?: string[] | string,
   ) {
     if (!inputs) return;
-    if (typeof inputs === 'string')
-      throw new BadRequestException(
-        `Parameter "${type}" should be array of strings (slugs).`,
-      );
+    if (typeof inputs === 'string') inputs = [inputs];
+
+    return inputs.map(
+      (input) =>
+        _.first(searchOptions[type].filter((temp) => temp.slug === input)).key,
+    );
+  }
+
+  private convertSlugsToStringKeys(
+    type: 'qualities',
+    inputs?: string[] | string,
+  ) {
+    if (!inputs) return;
+    if (typeof inputs === 'string') inputs = [inputs];
 
     return inputs.map(
       (input) =>
@@ -178,19 +188,6 @@ export class SearchService {
       );
 
     return _.first(searchOptions.sort.filter((temp) => temp.slug === slug)).key;
-  }
-
-  private convertSlugsToStringKeys(type: 'qualities', inputs?: string[]) {
-    if (!inputs) return;
-    if (typeof inputs === 'string')
-      throw new BadRequestException(
-        `Parameter "${type}" should be array of strings (slugs).`,
-      );
-
-    return inputs.map(
-      (input) =>
-        _.first(searchOptions[type].filter((temp) => temp.slug === input)).key,
-    );
   }
 
   availableOptions() {

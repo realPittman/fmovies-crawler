@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsBoolean,
+  IsBooleanString,
   IsEnum,
   IsNumber,
+  IsNumberString,
   IsOptional,
   IsPositive,
 } from 'class-validator';
@@ -16,20 +17,11 @@ import { VideoType } from '../providers/video.service';
 
 export class AdvancedSearchDto {
   @IsOptional()
-  @IsBoolean()
-  @ApiProperty({
-    description: 'Filter videos with or without subtitle, default is disabled',
-    type: Boolean,
-    nullable: true,
-    default: null,
-  })
-  with_subtitle?: boolean;
-
-  @IsOptional()
   @IsEnum(GenreSlugs, { each: true, message: 'Invalid genres array.' })
   @ApiProperty({
     description: 'The genres of the video',
-    type: [String],
+    required: false,
+    type: [GenreSlugs],
     enum: GenreSlugs,
     nullable: true,
     default: null,
@@ -37,9 +29,10 @@ export class AdvancedSearchDto {
   genres: GenreSlugs[];
 
   @IsOptional()
-  @IsBoolean()
+  @IsBooleanString()
   @ApiProperty({
     description: 'Include all selected generes',
+    required: false,
     type: Boolean,
     nullable: true,
     default: null,
@@ -52,6 +45,7 @@ export class AdvancedSearchDto {
   })
   @ApiProperty({
     description: 'The type of the video',
+    required: false,
     type: String,
     enum: VideoType,
     nullable: true,
@@ -63,6 +57,7 @@ export class AdvancedSearchDto {
   @IsEnum(CountrySlugs, { each: true, message: 'Invalid countries array.' })
   @ApiProperty({
     description: 'The countries of the video',
+    required: false,
     type: [String],
     enum: CountrySlugs,
     nullable: true,
@@ -74,6 +69,7 @@ export class AdvancedSearchDto {
   @IsEnum(QualitySlugs, { each: true, message: 'Invalid qualities array.' })
   @ApiProperty({
     description: 'The qualities of the video',
+    required: false,
     type: [String],
     enum: QualitySlugs,
     nullable: true,
@@ -86,6 +82,7 @@ export class AdvancedSearchDto {
   @IsPositive({ each: true })
   @ApiProperty({
     description: 'The release-years of the video',
+    required: false,
     type: [Number],
     nullable: true,
     default: null,
@@ -93,9 +90,21 @@ export class AdvancedSearchDto {
   release: number[];
 
   @IsOptional()
+  @IsBooleanString()
+  @ApiProperty({
+    description: 'Filter videos with or without subtitle, default is disabled',
+    required: false,
+    type: Boolean,
+    nullable: true,
+    default: null,
+  })
+  with_subtitle?: boolean;
+
+  @IsOptional()
   @IsEnum(SortSlugs, { message: 'Invalid sort slug.' })
   @ApiProperty({
     description: 'Order of the items',
+    required: false,
     type: String,
     enum: SortSlugs,
     nullable: true,
@@ -104,9 +113,10 @@ export class AdvancedSearchDto {
   sort: SortSlugs;
 
   @IsOptional()
-  @IsNumber()
-  @IsPositive()
+  @IsNumberString()
   @ApiProperty({
+    description: 'Current page to load',
+    required: false,
     minimum: 1,
     nullable: true,
     default: 1,
