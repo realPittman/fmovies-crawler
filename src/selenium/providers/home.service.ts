@@ -38,38 +38,28 @@ export class HomeService {
   }
 
   private processSlider(items: HTMLElement[]) {
-    const response = [];
-
-    for (let i = 0; i < items.length; i++) {
-      const categories = items[i]
+    return items.map((item) => {
+      const categories = item
         .querySelectorAll('.container .info .meta a')
         .map((category) => category.text);
 
       const { id, path } = this.calculatePath(
-        items[i]
-          .querySelector('.container .info .watchnow')
-          .getAttribute('href'),
+        item.querySelector('.container .info .watchnow').getAttribute('href'),
       );
 
-      response.push({
+      return {
         id,
         path,
-        background: items[i].getAttribute('data-src'),
-        title: items[i].querySelector('.container .info .title').text.trim(),
-        quality: items[i]
+        background: item.getAttribute('data-src'),
+        title: item.querySelector('.container .info .title').text.trim(),
+        quality: item
           .querySelector('.container .info .meta .quality')
           .text.trim(),
-        imdb: items[i]
-          .querySelector('.container .info .meta .imdb')
-          .text.trim(),
-        description: items[i]
-          .querySelector('.container .info .desc')
-          .text.trim(),
+        imdb: item.querySelector('.container .info .meta .imdb').text.trim(),
+        description: item.querySelector('.container .info .desc').text.trim(),
         categories,
-      });
-    }
-
-    return response;
+      };
+    });
   }
 
   private processSections(items: HTMLElement[]) {
