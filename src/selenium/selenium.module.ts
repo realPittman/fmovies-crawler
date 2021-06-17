@@ -1,4 +1,4 @@
-import { CacheModule, HttpModule, Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { VideoController } from './controllers/video.controller';
 import { SeleniumService } from './providers/selenium.service';
@@ -8,10 +8,11 @@ import { SearchController } from './controllers/search.controller';
 import { HomeController } from './controllers/home.controller';
 import { HomeService } from './providers/home.service';
 import * as redisStore from 'cache-manager-redis-store';
+import { RequestModule } from 'src/request/request.module';
 
 @Module({
   imports: [
-    HttpModule,
+    RequestModule,
     CacheModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

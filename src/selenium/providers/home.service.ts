@@ -1,30 +1,14 @@
-import { HttpService, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import parse, { HTMLElement } from 'node-html-parser';
+import { RequestService } from '../../request/request.service';
 import { VideoHelper } from '../../common/helpers/video-helper';
 
 @Injectable()
 export class HomeService {
-  private readonly baseUri: string;
-  private readonly homePath = 'home';
-
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
-  ) {
-    this.baseUri = this.configService.get('fmovies.baseUri');
-  }
-
-  private async getHomePage() {
-    return this.httpService
-      .get<string>(this.homePath, {
-        baseURL: this.baseUri,
-      })
-      .toPromise();
-  }
+  constructor(private readonly requestService: RequestService) {}
 
   async homepage() {
-    const page = await this.getHomePage();
+    const page = await this.requestService.getHomePage();
     const root = parse(page.data);
 
     return {

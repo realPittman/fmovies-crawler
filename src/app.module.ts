@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
 import { SeleniumModule } from './selenium/selenium.module';
+import { RequestModule } from './request/request.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -11,6 +13,8 @@ import { SeleniumModule } from './selenium/selenium.module';
       isGlobal: true,
     }),
     SeleniumModule,
+    RequestModule,
+    SearchModule,
   ],
 })
 export class AppModule {}
