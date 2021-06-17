@@ -25,7 +25,10 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       BASE_URI: http://localhost:3000
-    command: yarn run test:e2e --forceExit
+    depends_on:
+      - redis
+      - chrome
+    command: yarn run test:e2e --detectOpenHandles --forceExit
     volumes:
       - ./src:/app/src:ro
       - ./test:/app/test:ro
