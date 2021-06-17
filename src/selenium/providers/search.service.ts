@@ -52,10 +52,12 @@ export class SearchService {
       meta.shift();
       const type = _.last(meta) === 'min' ? VideoType.MOVIE : VideoType.SERIES;
 
-      const path = itemElements[i].getAttribute('href').replace('/film/', '');
+      const { id, path } = this.homeService.calculatePath(
+        itemElements[i].getAttribute('href'),
+      );
 
       items.push({
-        id: this.homeService.calculateIdFromPath(path),
+        id,
         path,
         type,
         title: itemElements[i].querySelector('.title').text.trim(),

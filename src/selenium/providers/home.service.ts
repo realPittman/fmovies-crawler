@@ -41,13 +41,19 @@ export class HomeService {
     const response = [];
 
     for (let i = 0; i < items.length; i++) {
-      const categories = [];
-      items[i]
+      const categories = items[i]
         .querySelectorAll('.container .info .meta a')
-        .forEach((category) => {
-          categories.push(category.text);
-        });
+        .map((category) => category.text);
+
+      const { id, path } = this.calculatePath(
+        items[i]
+          .querySelector('.container .info .watchnow')
+          .getAttribute('href'),
+      );
+
       response.push({
+        id,
+        path,
         background: items[i].getAttribute('data-src'),
         title: items[i].querySelector('.container .info .title').text.trim(),
         quality: items[i]
@@ -60,9 +66,6 @@ export class HomeService {
           .querySelector('.container .info .desc')
           .text.trim(),
         categories,
-        path: items[i]
-          .querySelector('.container .info .watchnow')
-          .getAttribute('href'),
       });
     }
 
@@ -111,16 +114,15 @@ export class HomeService {
       .structuredText.replace(type, '')
       .trim();
 
-    const path = item
-      .querySelector('a.poster')
-      .getAttribute('href')
-      .replace('/film/', '');
+    const { id, path } = this.calculatePath(
+      item.querySelector('a.poster').getAttribute('href'),
+    );
 
     return {
-      id: this.calculateIdFromPath(path),
+      id,
+      path,
       title: item.querySelector('.title').text.trim(),
       quality: item.querySelector('.quality').text,
-      path,
       poster: item
         .querySelector('img')
         .getAttribute('src')
@@ -131,8 +133,13 @@ export class HomeService {
     };
   }
 
-  calculateIdFromPath(path: string) {
+  // TODO: move to helper class
+  calculatePath(path: string) {
     const pathParts = path.split('.');
-    return pathParts[pathParts.length - 1];
+
+    return {
+      id: pathParts[pathParts.length - 1],
+      path: path.replace('/film/', ''),
+    };
   }
 }
