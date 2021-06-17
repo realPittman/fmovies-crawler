@@ -41,7 +41,7 @@
     -   Latest Movies
     -   Latest Series
     -   Requested Videos
--   Simple video details _(work in progress)_
+-   Simple video details
 -   Full video details
     -   Download link _(If available!)_
     -   Streaming link _(with `.m3u8` extension)_
@@ -110,7 +110,11 @@ yarn start:prod
 
 ## Documentation
 
-After running the application, head to http://localhost:3000/docs for the API description.
+After running the application, head to the http://localhost:3000/docs for the API description.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Scrip7/fmovies-crawler/main/images/docs.png" alt="Documentation page">
+</p>
 
 ## Useful resources
 
