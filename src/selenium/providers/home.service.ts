@@ -1,7 +1,7 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import parse, { HTMLElement } from 'node-html-parser';
-import { VideoType } from './video.service';
+import { VideoHelper } from '../../common/helpers/video-helper';
 
 @Injectable()
 export class HomeService {
@@ -43,7 +43,7 @@ export class HomeService {
         .querySelectorAll('.container .info .meta a')
         .map((category) => category.text);
 
-      const { id, path } = this.calculatePath(
+      const { id, path } = VideoHelper.processPathAndId(
         item.querySelector('.container .info .watchnow').getAttribute('href'),
       );
 
@@ -88,48 +88,12 @@ export class HomeService {
   private processRecommendedSectionContent(content: HTMLElement) {
     return content
       .querySelectorAll('div.item')
-      .map((item) => this.processItem(item));
+      .map((item) => VideoHelper.processItem(item));
   }
 
   private processNormalSection(section: HTMLElement) {
     return section
       .querySelectorAll('.content div.item')
-      .map((item) => this.processItem(item));
-  }
-
-  processItem(item: HTMLElement) {
-    const type = item.querySelector('.meta .type').text.trim();
-    const description = item
-      .querySelector('.meta')
-      .structuredText.replace(type, '')
-      .trim();
-
-    const { id, path } = this.calculatePath(
-      item.querySelector('a.poster').getAttribute('href'),
-    );
-
-    return {
-      id,
-      path,
-      title: item.querySelector('.title').text.trim(),
-      quality: item.querySelector('.quality').text,
-      poster: item
-        .querySelector('img')
-        .getAttribute('src')
-        .replace('-w180', ''),
-      imdb: item.querySelector('.imdb').text.trim(),
-      type: type === 'TV' ? VideoType.SERIES : VideoType.MOVIE,
-      description,
-    };
-  }
-
-  // TODO: move to helper class
-  calculatePath(path: string) {
-    const pathParts = path.split('.');
-
-    return {
-      id: pathParts[pathParts.length - 1],
-      path: path.replace('/film/', ''),
-    };
+      .map((item) => VideoHelper.processItem(item));
   }
 }

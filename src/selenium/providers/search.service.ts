@@ -7,9 +7,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import { HTMLElement, parse } from 'node-html-parser';
-import { searchOptions } from 'src/common/constants/search-options';
+import { searchOptions } from '../../common/constants/search-options';
+import { VideoHelper } from '../../common/helpers/video-helper';
 import { AdvancedSearchDto } from '../dto/advanced-search.dto';
-import { HomeService } from './home.service';
 import { VideoType } from './video.service';
 
 @Injectable()
@@ -21,7 +21,6 @@ export class SearchService {
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly homeService: HomeService,
   ) {
     this.baseUri = this.configService.get('fmovies.baseUri');
   }
@@ -52,7 +51,7 @@ export class SearchService {
       meta.shift();
       const type = _.last(meta) === 'min' ? VideoType.MOVIE : VideoType.SERIES;
 
-      const { id, path } = this.homeService.calculatePath(
+      const { id, path } = VideoHelper.processPathAndId(
         itemElements[i].getAttribute('href'),
       );
 
@@ -107,7 +106,7 @@ export class SearchService {
     return {
       items: root
         .querySelectorAll('.content div.item')
-        .map((item) => this.homeService.processItem(item)),
+        .map((item) => VideoHelper.processItem(item)),
       meta: this.getPaginationMeta(
         root.querySelectorAll('.content .pagenav li'),
       ),
