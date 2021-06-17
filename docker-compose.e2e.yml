@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    environment:
+      NODE_ENV: test
+    command: yarn run test:e2e --detectOpenHandles
+    volumes:
+      - ./src:/app/src:ro
+      - ./test:/app/test:ro
