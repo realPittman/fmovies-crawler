@@ -10,7 +10,7 @@ import { Cache } from 'cache-manager';
 import * as _ from 'lodash';
 import { parse } from 'node-html-parser';
 import { By, ThenableWebDriver, until } from 'selenium-webdriver';
-import { VideoType } from 'src/common/constants/video-types';
+import { VideoType } from '../common/constants/video-types';
 import { v4 as uuidv4 } from 'uuid';
 import { VideoHelper } from '../common/helpers/video-helper';
 import { RequestService } from '../request/request.service';

@@ -7,7 +7,7 @@ import {
   IsOptional,
   IsPositive,
 } from 'class-validator';
-import { VideoType } from 'src/common/constants/video-types';
+import { VideoType } from '../../common/constants/video-types';
 import {
   CountrySlugs,
   GenreSlugs,
