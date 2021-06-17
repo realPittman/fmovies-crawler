@@ -70,10 +70,10 @@ export class VideoService {
       $(".breadcrumb").find(".breadcrumb-item").each((key, value) => {
           switch ($(value).find('span').text()){
               case "TV-Series":
-                  videoType = "series";
+                  videoType = "${VideoType.SERIES}";
               break;
               case "Movies":
-                  videoType = "movie";
+                  videoType = "${VideoType.MOVIE}";
               break;
           }
       })
