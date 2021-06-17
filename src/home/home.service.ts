@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import parse, { HTMLElement } from 'node-html-parser';
-import { RequestService } from '../../request/request.service';
-import { VideoHelper } from '../../common/helpers/video-helper';
+import { RequestService } from '../request/request.service';
+import { VideoHelper } from '../common/helpers/video-helper';
 
 @Injectable()
 export class HomeService {

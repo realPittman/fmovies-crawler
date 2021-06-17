@@ -5,6 +5,7 @@ import { SeleniumModule } from './selenium/selenium.module';
 import { RequestModule } from './request/request.module';
 import { SearchModule } from './search/search.module';
 import { CacheModule } from './cache/cache.module';
+import { HomeModule } from './home/home.module';
 
 @Module({
   imports: [
@@ -14,9 +15,10 @@ import { CacheModule } from './cache/cache.module';
       isGlobal: true,
     }),
     CacheModule,
-    SeleniumModule,
     RequestModule,
+    HomeModule,
     SearchModule,
+    SeleniumModule,
   ],
 })
 export class AppModule {}

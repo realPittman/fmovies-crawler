@@ -5,7 +5,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { HomeService } from '../providers/home.service';
+import { HomeService } from './home.service';
 
 @ApiTags('Home')
 @Controller('home')
