@@ -102,6 +102,8 @@ yarn install
 
 ## Running locally
 
+> First, make sure that you have [Chrome](https://www.google.com/chrome/), and [Redis](https://redis.io/) installed, and running on your machine.
+
 ```bash
 # Development mode (watch mode)
 yarn start:dev
