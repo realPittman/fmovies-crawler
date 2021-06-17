@@ -1,5 +1,5 @@
 import { HTMLElement } from 'node-html-parser';
-import { VideoType } from '../../selenium/providers/video.service';
+import { VideoType } from '../constants/video-types';
 
 export class VideoHelper {
   static processPathAndId(path: string) {

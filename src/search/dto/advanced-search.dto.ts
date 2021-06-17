@@ -7,13 +7,13 @@ import {
   IsOptional,
   IsPositive,
 } from 'class-validator';
+import { VideoType } from 'src/common/constants/video-types';
 import {
   CountrySlugs,
   GenreSlugs,
   QualitySlugs,
   SortSlugs,
 } from '../../common/constants/search-options';
-import { VideoType } from '../../selenium/providers/video.service';
 
 export class AdvancedSearchDto {
   @IsOptional()

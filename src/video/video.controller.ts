@@ -6,9 +6,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { VideoDetailsDto } from '../dto/video-details.dto';
-import { VideoDto } from '../dto/video.dto';
-import { VideoService } from '../providers/video.service';
+import { VideoDetailsDto } from './dto/video-details.dto';
+import { VideoDto } from './dto/video.dto';
+import { VideoService } from './video.service';
 
 @ApiTags('Video')
 @Controller('video')

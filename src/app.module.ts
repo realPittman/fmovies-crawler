@@ -6,6 +6,7 @@ import { RequestModule } from './request/request.module';
 import { SearchModule } from './search/search.module';
 import { CacheModule } from './cache/cache.module';
 import { HomeModule } from './home/home.module';
+import { VideoModule } from './video/video.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { HomeModule } from './home/home.module';
     HomeModule,
     SearchModule,
     SeleniumModule,
+    VideoModule,
   ],
 })
 export class AppModule {}

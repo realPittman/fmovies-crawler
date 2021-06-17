@@ -1,4 +1,4 @@
-import { VideoType } from '../../selenium/providers/video.service';
+import { VideoType } from '../../common/constants/video-types';
 
 export interface SearchParams {
   sort: string;

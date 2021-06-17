@@ -1,4 +1,4 @@
-import { VideoType } from 'src/selenium/providers/video.service';
+import { VideoType } from './video-types';
 
 export interface GenreInterface {
   name: string;

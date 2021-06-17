@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import * as _ from 'lodash';
 import { HTMLElement, parse } from 'node-html-parser';
+import { VideoType } from 'src/common/constants/video-types';
 import { searchOptions } from '../common/constants/search-options';
 import { VideoHelper } from '../common/helpers/video-helper';
 import { RequestService } from '../request/request.service';
-import { VideoType } from '../selenium/providers/video.service';
 import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
 @Injectable()
